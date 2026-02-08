@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
-    <title>Kid's Adventure - Touch Zone Edition</title>
+    <title>Kid's Adventure - Touch Zone Fixed</title>
     <!-- Import font chu viet tay Patrick Hand -->
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
     <style>
@@ -53,7 +53,7 @@
             align-items: center;
             justify-content: center;
             pointer-events: none;
-            z-index: 10;
+            z-index: 50; /* Dat cao hon touch zones de co the bam nut */
         }
 
         .screen {
@@ -94,7 +94,7 @@
             padding: 5px 15px;
             border-radius: 10px;
             border: 2px solid #ff4d4d;
-            z-index: 5;
+            z-index: 40;
         }
 
         button {
@@ -108,6 +108,11 @@
             transition: transform 0.2s, background-color 0.2s;
             font-family: 'Patrick Hand', cursive;
             font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #ff1a1a;
+            transform: scale(1.05);
         }
 
         /* Vung cam cam ung an (Touch Zones) */
@@ -125,8 +130,6 @@
         }
 
         .zone {
-            /* De an vung cham, chung ta de transparent. 
-               Co the bat background mau nhe de debug neu muon. */
             background: transparent; 
             user-select: none;
             -webkit-user-select: none;
@@ -145,7 +148,7 @@
             font-weight: bold;
             display: none;
             pointer-events: none;
-            z-index: 30;
+            z-index: 100;
         }
     </style>
 </head>
@@ -172,7 +175,7 @@
 
         <!-- He thong vung cham an -->
         <div id="touch-zones">
-            <div class="zone" id="zone-tl"></div> <!-- Top Left: Move Right -->
+            <div class="zone" id="zone-tl"></div> <!-- Top Left: Move Right (Tiến) -->
             <div class="zone" id="zone-tr"></div> <!-- Top Right: Jump -->
             <div class="zone" id="zone-bl"></div> <!-- Bottom Left: Move Left -->
             <div class="zone" id="zone-br"></div> <!-- Bottom Right: Crouch -->
@@ -189,6 +192,7 @@
         const messageBox = document.getElementById('message-box');
         const scoreElement = document.getElementById('score-display');
         const finalScoreElement = document.getElementById('final-score');
+        const touchZonesContainer = document.getElementById('touch-zones');
 
         // Kich thuoc noi tai cua game
         canvas.width = 800;
@@ -230,6 +234,9 @@
 
             lastGeneratedX = 800;
             for(let i=0; i<8; i++) spawnNextChunk();
+            
+            // An vung cham khi chua bat dau
+            touchZonesContainer.style.display = 'none';
         }
 
         function startGame() {
@@ -237,6 +244,8 @@
             gameState = 'PLAYING';
             startScreen.classList.remove('active');
             gameOverScreen.classList.remove('active');
+            // Hien thi vung cham khi game bat dau
+            touchZonesContainer.style.display = 'grid';
         }
 
         function updateScoreUI() {
@@ -251,6 +260,7 @@
         const setupTouchZone = (id, key) => {
             const zone = document.getElementById(id);
             zone.addEventListener('touchstart', (e) => {
+                if (gameState !== 'PLAYING') return;
                 e.preventDefault();
                 keys[key] = true;
             }, { passive: false });
@@ -264,11 +274,10 @@
             }, { passive: false });
         };
 
-        // Thiet lap theo yeu cau nguoi dung
-        setupTouchZone('zone-tl', 'ArrowRight'); // Top Left -> Move Right (Tiến)
-        setupTouchZone('zone-bl', 'ArrowLeft');  // Bottom Left -> Move Left
-        setupTouchZone('zone-tr', 'ArrowUp');    // Top Right -> Jump
-        setupTouchZone('zone-br', 'ArrowDown');  // Bottom Right -> Crouch/Duck
+        setupTouchZone('zone-tl', 'ArrowRight'); // Top Left -> Tiến sang Phải
+        setupTouchZone('zone-bl', 'ArrowLeft');  // Bottom Left -> Sang Trái
+        setupTouchZone('zone-tr', 'ArrowUp');    // Top Right -> Nhảy
+        setupTouchZone('zone-br', 'ArrowDown');  // Bottom Right -> Ngồi
 
         function spawnNextChunk() {
             const rand = Math.random();
@@ -312,7 +321,6 @@
             }
         }
 
-        // --- LOGIC UPDATE ---
         function update() {
             if (gameState !== 'PLAYING') return;
 
@@ -441,11 +449,16 @@
             player.frameCount++;
         }
 
-        function endGame() { gameState = 'GAMEOVER'; gameOverScreen.classList.add('active'); finalScoreElement.innerText = "You traveled: " + Math.floor(score) + "m"; }
+        function endGame() { 
+            gameState = 'GAMEOVER'; 
+            gameOverScreen.classList.add('active'); 
+            finalScoreElement.innerText = "You traveled: " + Math.floor(score) + "m"; 
+            touchZonesContainer.style.display = 'none';
+        }
+
         function createParticles(x, y, color, count) { for (let i = 0; i < count; i++) { particles.push({ x, y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, alpha: 1, color }); } }
 
         // --- DRAW FUNCTIONS ---
-
         function drawChainConveyor(ctx, p) {
             ctx.save();
             ctx.strokeStyle = '#555'; ctx.lineWidth = 6;
@@ -526,13 +539,9 @@
             const legRadius = 6;
             let lx = side * 7; 
             let ly = bodyH + 2;
-            if (isZipping) {
-                lx += Math.sin(p.frameCount * 0.1) * 8; 
-                ly -= 2;
-            } else if (!p.grounded || p.isClimbing) {
-                ly += 2; 
-                lx += side * 2;
-            } else if (p.velX !== 0) {
+            if (isZipping) { lx += Math.sin(p.frameCount * 0.1) * 8; ly -= 2; }
+            else if (!p.grounded || p.isClimbing) { ly += 2; lx += side * 2; }
+            else if (p.velX !== 0) {
                 const animSpeed = 0.2;
                 const offset = (side === 1) ? 0 : Math.PI;
                 lx += Math.sin(p.frameCount * animSpeed + offset) * 8;
