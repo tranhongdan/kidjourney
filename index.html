@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
-    <title>Kid's Adventure - Pro Touch Controls</title>
+    <title>Kid's Adventure - Fixed Stomp Logic</title>
     <!-- Import font chu viet tay Patrick Hand -->
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
     <style>
@@ -18,7 +18,7 @@
             background-color: #f0f0f0;
             font-family: 'Patrick Hand', cursive;
             overflow: hidden;
-            touch-action: none; /* Ngan chan cac thao tac zoom/pan mac dinh */
+            touch-action: none; 
         }
 
         #game-container {
@@ -53,7 +53,7 @@
             align-items: center;
             justify-content: center;
             pointer-events: none;
-            z-index: 50; 
+            z-index: 100; 
         }
 
         .screen {
@@ -61,10 +61,11 @@
             text-align: center;
             pointer-events: auto;
             background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
+            padding: 20px 40px;
             border-radius: 15px;
             border: 3px solid #ff4d4d;
             box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            max-width: 85%;
         }
 
         .screen.active {
@@ -73,14 +74,33 @@
 
         h1 {
             color: #ff4d4d;
-            font-size: 52px;
-            margin: 0 0 10px 0;
+            font-size: 42px;
+            margin: 0 0 5px 0;
             text-shadow: 1px 1px #333;
         }
 
-        p {
-            font-size: 24px;
-            margin: 10px 0;
+        .instructions {
+            background: #fff9c4;
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px dashed #fbc02d;
+            margin-bottom: 10px;
+        }
+
+        .instructions p {
+            font-size: 16px;
+            margin: 3px 0;
+            color: #5d4037;
+            text-align: left;
+        }
+
+        .copyright {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #777;
+            border-top: 1px solid #eee;
+            padding-top: 5px;
+            line-height: 1.2;
         }
 
         #score-display {
@@ -98,8 +118,8 @@
         }
 
         button {
-            padding: 12px 40px;
-            font-size: 28px;
+            padding: 10px 40px;
+            font-size: 26px;
             cursor: pointer;
             background-color: #ff4d4d;
             color: white;
@@ -110,12 +130,6 @@
             font-weight: bold;
         }
 
-        button:hover {
-            background-color: #ff1a1a;
-            transform: scale(1.05);
-        }
-
-        /* Vung cam cam ung an (Touch Zones) */
         #touch-zones {
             position: absolute;
             top: 0;
@@ -126,13 +140,10 @@
             grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr 1fr;
             z-index: 20;
-            pointer-events: auto;
         }
 
         .zone {
             background: transparent; 
-            user-select: none;
-            -webkit-user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -148,7 +159,7 @@
             font-weight: bold;
             display: none;
             pointer-events: none;
-            z-index: 100;
+            z-index: 150;
         }
     </style>
 </head>
@@ -161,24 +172,40 @@
         <div id="ui-overlay">
             <div id="start-screen" class="screen active">
                 <h1>Kid's Journey</h1>
-                <p>Slide your finger between corners to move!</p>
+                
+                <div class="instructions">
+                    <p><strong>Hướng dẫn chơi:</strong></p>
+                    <p>• Góc TRÊN TRÁI: Giữ để đi sang PHẢI</p>
+                    <p>• Góc DƯỚI TRÁI: Giữ để đi sang TRÁI</p>
+                    <p>• Góc TRÊN PHẢI: Chạm để NHẢY</p>
+                    <p>• Góc DƯỚI PHẢI: Chạm để NGỒI</p>
+                    <p style="color: #d32f2f;">* Nhảy trúng ĐẦU quái vật để tiêu diệt!</p>
+                </div>
+
                 <button onclick="startGame()">Start Game</button>
-                <p style="font-size: 16px;">Top-Left: Right | Bottom-Left: Left | Top-Right: Jump | Bottom-Right: Duck</p>
+
+                <div class="copyright">
+                    Bản quyền: Trần Hồng Dân<br>
+                    Email: tranhongdan@tranphudlk.edu.vn
+                </div>
             </div>
 
             <div id="game-over-screen" class="screen">
                 <h1 style="color: #333;">OOPS!</h1>
-                <p id="final-score">You traveled: 0m</p>
+                <p id="final-score" style="font-size: 24px;">Distance: 0m</p>
                 <button onclick="startGame()">Retry</button>
+                <div class="copyright">
+                    Bản quyền: Trần Hồng Dân<br>
+                    tranhongdan@tranphudlk.edu.vn
+                </div>
             </div>
         </div>
 
-        <!-- He thong vung cham an -->
-        <div id="touch-zones">
-            <div class="zone" data-key="ArrowRight" id="zone-tl"></div> <!-- Top Left -> Tiến -->
-            <div class="zone" data-key="ArrowUp" id="zone-tr"></div>    <!-- Top Right -> Nhảy -->
-            <div class="zone" data-key="ArrowLeft" id="zone-bl"></div>  <!-- Bottom Left -> Lùi -->
-            <div class="zone" data-key="ArrowDown" id="zone-br"></div>  <!-- Bottom Right -> Ngồi -->
+        <div id="touch-zones" style="display: none;">
+            <div class="zone" data-key="ArrowRight" id="zone-tl"></div>
+            <div class="zone" data-key="ArrowUp" id="zone-tr"></div>
+            <div class="zone" data-key="ArrowLeft" id="zone-bl"></div>
+            <div class="zone" data-key="ArrowDown" id="zone-br"></div>
         </div>
         
         <div id="message-box"></div>
@@ -194,7 +221,6 @@
         const finalScoreElement = document.getElementById('final-score');
         const touchZonesContainer = document.getElementById('touch-zones');
 
-        // Kich thuoc noi tai cua game
         canvas.width = 800;
         canvas.height = 400;
 
@@ -211,8 +237,7 @@
         let cameraX = 0;
         let lastGeneratedX = 0;
 
-        // Luu tru trang thai cam ung hien tai
-        let activeTouches = {}; // Mapping touch.identifier -> key
+        let activeTouches = {}; 
 
         // --- KHOI TAO GAME ---
         function initGame() {
@@ -238,8 +263,7 @@
             lastGeneratedX = 800;
             for(let i=0; i<8; i++) spawnNextChunk();
             
-            touchZonesContainer.style.display = 'none';
-            keys = {}; // Reset keys
+            keys = {}; 
             activeTouches = {};
         }
 
@@ -256,17 +280,13 @@
         }
 
         // --- XU LY DIEU KHIEN ---
-
-        // Ban phim
         window.addEventListener('keydown', e => keys[e.code] = true);
         window.addEventListener('keyup', e => keys[e.code] = false);
 
-        // He thong Cam ung thong minh (Dynamic Slide Control)
         const handleTouch = (e) => {
             if (gameState !== 'PLAYING') return;
             e.preventDefault();
 
-            // Duyet qua tat ca cac diem cham dang hoat dong
             for (let i = 0; i < e.changedTouches.length; i++) {
                 const touch = e.changedTouches[i];
                 const target = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -277,9 +297,7 @@
                     const oldKey = activeTouches[touchId];
 
                     if (newKey !== oldKey) {
-                        // Neu di sang vung moi, nha phim cu
                         if (oldKey) keys[oldKey] = false;
-                        // Nhan phim moi
                         if (newKey) {
                             keys[newKey] = true;
                             activeTouches[touchId] = newKey;
@@ -331,15 +349,10 @@
                     platforms.push({ x: nextX + width/2 - 30, y: nextY - 40, width: 60, height: 40, type: 'arch' });
                 }
                 let eRand = Math.random();
-                if (eRand < 0.2) { // Bird
-                    enemies.push({ type: 'bird', x: nextX + width + 200, y: nextY - 80 - Math.random() * 60, width: 40, height: 30, speed: 1.5, dir: -1, hp: 1 });
-                } else if (eRand < 0.45) { // Worm
-                    enemies.push({ type: 'worm', x: nextX + 30, y: nextY - 20, width: 40, height: 20, speed: 0.8, dir: 1, startX: nextX, endX: nextX + width, hp: 1 });
-                } else if (eRand < 0.7) { // Bug
-                    enemies.push({ type: 'bug', x: nextX + 80, y: nextY - 40, width: 50, height: 40, speed: 1, dir: 1, startX: nextX, endX: nextX + width, hp: 2 });
-                } else { // Spikes
-                    enemies.push({ type: 'spikes', x: nextX + 110, y: nextY - 45, width: 40, height: 45 });
-                }
+                if (eRand < 0.2) { enemies.push({ type: 'bird', x: nextX + width + 200, y: nextY - 80 - Math.random() * 60, width: 40, height: 30, speed: 1.5, dir: -1, hp: 1 }); }
+                else if (eRand < 0.45) { enemies.push({ type: 'worm', x: nextX + 30, y: nextY - 20, width: 40, height: 20, speed: 0.8, dir: 1, startX: nextX, endX: nextX + width, hp: 1 }); }
+                else if (eRand < 0.7) { enemies.push({ type: 'bug', x: nextX + 80, y: nextY - 40, width: 50, height: 40, speed: 1, dir: 1, startX: nextX, endX: nextX + width, hp: 2 }); }
+                else { enemies.push({ type: 'spikes', x: nextX + 110, y: nextY - 45, width: 40, height: 45 }); }
                 lastGeneratedX = nextX + width;
             }
         }
@@ -355,8 +368,7 @@
 
             let onVine = null;
             for (let v of vines) {
-                if (player.x + player.width > v.x - 15 && player.x < v.x + 15 &&
-                    player.y + player.height > v.y && player.y < v.y + v.height) {
+                if (player.x + player.width > v.x - 15 && player.x < v.x + 15 && player.y + player.height > v.y && player.y < v.y + v.height) {
                     onVine = v; break;
                 }
             }
@@ -367,8 +379,7 @@
 
             if (!player.isZipping) {
                 for (let z of ziplines) {
-                    let d = Math.abs((z.y2 - z.y1) * player.x - (z.x2 - z.x1) * player.y + z.x2 * z.y1 - z.y2 * z.x1) / 
-                            Math.sqrt(Math.pow(z.y2 - z.y1, 2) + Math.pow(z.x2 - z.x1, 2));
+                    let d = Math.abs((z.y2 - z.y1) * player.x - (z.x2 - z.x1) * player.y + z.x2 * z.y1 - z.y2 * z.x1) / Math.sqrt(Math.pow(z.y2 - z.y1, 2) + Math.pow(z.x2 - z.x1, 2));
                     if (d < 30 && player.x > z.x1 && player.x < z.x2 && player.velY > -3) {
                         player.isZipping = true; player.isClimbing = false; player.grounded = false; break;
                     }
@@ -382,24 +393,23 @@
                     player.isClimbing = false; if (keys['Space']) player.velY = -player.jumpForce;
                 }
             } else if (player.isZipping) {
-                player.velY = 0; player.x += 3; 
-                player.dir = 1; 
-                let foundZ = false;
+                player.velY = 0; player.x += 3; player.dir = 1; 
+                let fz = false;
                 for (let z of ziplines) {
                     if (player.x >= z.x1 && player.x <= z.x2) {
                         let t = (player.x - z.x1) / (z.x2 - z.x1);
                         player.y = z.y1 + t * (z.y2 - z.y1) + 20; 
-                        foundZ = true; break;
+                        fz = true; break;
                     }
                 }
-                if (!foundZ) { player.isZipping = false; player.velY = 2; }
+                if (!fz) { player.isZipping = false; player.velY = 2; }
                 if (keys['Space'] || keys['ArrowDown']) player.isZipping = false;
             } else {
                 if (keys['ArrowLeft']) { player.velX = -player.speed; player.dir = -1; }
                 else if (keys['ArrowRight']) { player.velX = player.speed; player.dir = 1; }
                 else player.velX = 0;
 
-                if (keys['ArrowDown'] || keys['KeyS']) {
+                if (keys['ArrowDown']) {
                     if (!player.isDucking) { player.isDucking = true; player.height = 25; player.y += 20; }
                 } else {
                     if (player.isDucking) { player.isDucking = false; player.height = 45; player.y -= 20; }
@@ -425,8 +435,7 @@
                 for (let p of platforms) {
                     if (p.type === 'chain_conveyor') {
                         p.bladeOffset = (p.bladeOffset + p.bladeSpeed) % 200;
-                        if (player.x < p.x + p.width && player.x + player.width > p.x &&
-                            player.y + player.height >= p.y && player.y + player.height <= p.y + 20 && player.velY >= 0) {
+                        if (player.x < p.x + p.width && player.x + player.width > p.x && player.y + player.height >= p.y && player.y + player.height <= p.y + 20 && player.velY >= 0) {
                             player.y = p.y - player.height; player.velY = 0; player.grounded = true; player.canDoubleJump = true;
                             for (let i = -1; i < p.width / 100 + 1; i++) {
                                 let bx = p.x + (i * 200) + p.bladeOffset;
@@ -435,15 +444,10 @@
                         }
                     } else if (p.type === 'arch') {
                         if (player.x < p.x + p.width && player.x + player.width > p.x && player.y < p.y + p.height && player.y + player.height > p.y) {
-                            if (!player.isDucking) {
-                                if (player.velX > 0) player.x = p.x - player.width;
-                                else if (player.velX < 0) player.x = p.x + p.width;
-                            }
+                            if (!player.isDucking) { if (player.velX > 0) player.x = p.x - player.width; else if (player.velX < 0) player.x = p.x + p.width; }
                         }
                     } else if (player.x < p.x + p.width && player.x + player.width > p.x && player.y < p.y + p.height && player.y + player.height > p.y) {
-                        if (player.velY > 0 && player.y + player.height - player.velY <= p.y + 10) {
-                            player.y = p.y - player.height; player.velY = 0; player.grounded = true; player.canDoubleJump = true;
-                        }
+                        if (player.velY > 0 && player.y + player.height - player.velY <= p.y + 10) { player.y = p.y - player.height; player.velY = 0; player.grounded = true; player.canDoubleJump = true; }
                     }
                 }
             }
@@ -452,17 +456,34 @@
                 let e = enemies[i];
                 if (e.type !== 'spikes') {
                     if (e.type === 'worm') {
-                        const wormCycle = (player.frameCount * 0.1) % (Math.PI * 2);
-                        if (wormCycle < Math.PI) e.x += e.speed * e.dir * 1.5;
+                        const wc = (player.frameCount * 0.1) % (Math.PI * 2);
+                        if (wc < Math.PI) e.x += e.speed * e.dir * 1.5;
                     } else { e.x += (e.speed || 0) * (e.dir || 1); }
                     if (e.type === 'bird') { if (e.x < cameraX - 200 || e.x > cameraX + 1000) e.dir *= -1; }
                     else { if (e.x < e.startX || e.x + e.width > e.endX) e.dir *= -1; }
                 }
+
                 if (player.x < e.x + e.width && player.x + player.width > e.x && player.y < e.y + e.height && player.y + player.height > e.y) {
-                    if (player.velY > 0 && e.type !== 'spikes' && e.type !== 'bird' && (player.y + player.height - player.velY) <= e.y + 15) {
-                        if (e.type === 'bug' && e.hp > 1) { e.hp--; player.velY = -player.jumpForce * 0.7; createParticles(e.x + 20, e.y, 'white', 5); }
-                        else { enemies.splice(i, 1); player.velY = -player.jumpForce * 0.7; }
-                    } else endGame();
+                    
+                    // --- LOGIC VA CHAM KE THU (CAI TIEN) ---
+                    // Kiem tra chan cua player so voi diem giua cua quai vat
+                    const playerFeet = player.y + player.height;
+                    const enemyShoulder = e.y + e.height * 0.4; // Nhan dien giam neu chan player nam o nua tren quai
+
+                    // Neu dang roi (velY > 0) va chan dang o cao hon vai quai vat -> GIAM
+                    if (player.velY > 0 && playerFeet <= enemyShoulder + 15 && e.type !== 'spikes' && e.type !== 'bird') {
+                        if (e.type === 'bug' && e.hp > 1) { 
+                            e.hp--; 
+                            player.velY = -player.jumpForce * 0.7; 
+                            createParticles(e.x + 25, e.y, 'white', 5); 
+                        } else { 
+                            enemies.splice(i, 1); 
+                            player.velY = -player.jumpForce * 0.7; 
+                        }
+                    } else {
+                        // Con lai la va cham tu ben canh hoac va cham khong hop le -> CHET
+                        endGame();
+                    }
                 }
             }
 
@@ -475,7 +496,7 @@
         function endGame() { 
             gameState = 'GAMEOVER'; 
             gameOverScreen.classList.add('active'); 
-            finalScoreElement.innerText = "You traveled: " + Math.floor(score) + "m"; 
+            finalScoreElement.innerText = "Distance: " + Math.floor(score) + "m"; 
             touchZonesContainer.style.display = 'none';
         }
 
@@ -499,8 +520,7 @@
                         ctx.lineTo(Math.cos(angle) * 15, Math.sin(angle) * 15);
                         ctx.lineTo(Math.cos(angle + 0.2) * 8, Math.sin(angle + 0.2) * 8);
                     }
-                    ctx.closePath(); ctx.fill();
-                    ctx.strokeStyle = 'white'; ctx.lineWidth = 1; ctx.stroke();
+                    ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'white'; ctx.lineWidth = 1; ctx.stroke();
                     ctx.restore();
                 }
             }
@@ -510,33 +530,32 @@
         function drawEnemy(ctx, e, frameCount) {
             ctx.save();
             if (e.type === 'worm') {
-                const wormCycle = (frameCount * 0.1) % (Math.PI * 2);
-                const archHeight = Math.max(0, Math.sin(wormCycle) * 15);
-                const bodyLength = 40 - (archHeight * 0.5);
+                const wc = (frameCount * 0.1) % (Math.PI * 2);
+                const ah = Math.max(0, Math.sin(wc) * 15);
+                const bl = 40 - (ah * 0.5);
                 ctx.fillStyle = '#7cfc00'; ctx.strokeStyle = '#32cd32'; ctx.lineWidth = 2;
                 for(let i=0; i<5; i++) {
-                    let dotX = e.x + (i * bodyLength / 4);
-                    let dotY = e.y + 15;
-                    if (i > 0 && i < 4) dotY -= archHeight * (1 - Math.abs(2-i)*0.5);
-                    ctx.beginPath(); ctx.arc(dotX, dotY, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                    let dx = e.x + (i * bl / 4); let dy = e.y + 15;
+                    if (i > 0 && i < 4) dy -= ah * (1 - Math.abs(2-i)*0.5);
+                    ctx.beginPath(); ctx.arc(dx, dy, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
                     if ((e.dir > 0 && i === 4) || (e.dir < 0 && i === 0)) {
-                        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(dotX + 2*e.dir, dotY - 2, 2, 0, Math.PI * 2); ctx.fill();
-                        ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(dotX + 3*e.dir, dotY - 2, 1, 0, Math.PI * 2); ctx.fill();
+                        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(dx + 2*e.dir, dy - 2, 2, 0, Math.PI * 2); ctx.fill();
+                        ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(dx + 3*e.dir, dy - 2, 1, 0, Math.PI * 2); ctx.fill();
                     }
                 }
             } else if (e.type === 'bug') {
-                const mouthOpen = Math.abs(Math.sin(frameCount * 0.15)) * 0.7;
+                const mo = Math.abs(Math.sin(frameCount * 0.15)) * 0.7;
                 ctx.fillStyle = '#9c27b0'; ctx.beginPath(); ctx.moveTo(e.x + 25, e.y + 20);
-                let sA = (e.dir > 0) ? mouthOpen : Math.PI + mouthOpen;
-                let eA = (e.dir > 0) ? Math.PI * 2 - mouthOpen : Math.PI - mouthOpen;
-                ctx.arc(e.x + 25, e.y + 20, 20, sA, eA); ctx.closePath(); ctx.fill();
+                let sa = (e.dir > 0) ? mo : Math.PI + mo;
+                let ea = (e.dir > 0) ? Math.PI * 2 - mo : Math.PI - mo;
+                ctx.arc(e.x + 25, e.y + 20, 20, sa, ea); ctx.closePath(); ctx.fill();
                 ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(e.x + 25 + 5 * e.dir, e.y + 5, 7, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = '#6a1b9a'; ctx.beginPath(); ctx.arc(e.x + 25 + 7 * e.dir, e.y + 5, 3, 0, Math.PI * 2); ctx.fill();
-                if (mouthOpen > 0.1) {
+                if (mo > 0.1) {
                     ctx.fillStyle = 'white';
                     for(let i=0; i<2; i++) {
-                        let tA = (e.dir > 0) ? (i === 0 ? mouthOpen : -mouthOpen) : (i === 0 ? Math.PI - mouthOpen : Math.PI + mouthOpen);
-                        let tx = e.x + 25 + Math.cos(tA) * 18; let ty = e.y + 20 + Math.sin(tA) * 18;
+                        let ta = (e.dir > 0) ? (i === 0 ? mo : -mo) : (i === 0 ? Math.PI - mo : Math.PI + mo);
+                        let tx = e.x + 25 + Math.cos(ta) * 18; let ty = e.y + 20 + Math.sin(ta) * 18;
                         ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(tx - 6 * e.dir, ty - 4); ctx.lineTo(tx - 6 * e.dir, ty + 4); ctx.fill();
                     }
                 }
@@ -544,8 +563,8 @@
             } else if (e.type === 'bird') {
                 ctx.fillStyle = '#00bfff'; ctx.beginPath(); ctx.ellipse(e.x + 20, e.y + 15, 18, 12, 0, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = '#6a1b9a'; ctx.beginPath(); ctx.arc(e.dir > 0 ? e.x + 32 : e.x + 8, e.y + 12, 2, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#ff8c00'; ctx.beginPath(); let bX = e.dir > 0 ? e.x + 38 : e.x + 2; ctx.moveTo(bX, e.y + 12); ctx.lineTo(bX + 10 * e.dir, e.y + 15); ctx.lineTo(bX, e.y + 18); ctx.fill();
-                ctx.fillStyle = '#1e90ff'; let wingAnim = Math.sin(frameCount * 0.1) * 20; ctx.beginPath(); ctx.moveTo(e.x + 20, e.y + 15); ctx.lineTo(e.x - 5, e.y + 15 - wingAnim); ctx.lineTo(e.x + 10, e.y + 25); ctx.fill();
+                ctx.fillStyle = '#ff8c00'; ctx.beginPath(); let bx = e.dir > 0 ? e.x + 38 : e.x + 2; ctx.moveTo(bx, e.y + 12); ctx.lineTo(bx + 10 * e.dir, e.y + 15); ctx.lineTo(bx, e.y + 18); ctx.fill();
+                ctx.fillStyle = '#1e90ff'; let wa = Math.sin(frameCount * 0.1) * 20; ctx.beginPath(); ctx.moveTo(e.x + 20, e.y + 15); ctx.lineTo(e.x - 5, e.y + 15 - wa); ctx.lineTo(e.x + 10, e.y + 25); ctx.fill();
             } else if (e.type === 'spikes') {
                 ctx.fillStyle = '#2e7d32'; ctx.beginPath(); ctx.rect(e.x + 15, e.y + 5, 10, 40); ctx.fill();
                 ctx.strokeStyle = '#2e7d32'; ctx.lineWidth = 6; ctx.lineCap = 'round';
@@ -558,47 +577,38 @@
 
         function drawLeg(ctx, p, side, isZipping) {
             ctx.save();
-            const bodyH = p.isDucking ? 15 : 25;
-            const legRadius = 6;
-            let lx = side * 7; 
-            let ly = bodyH + 2;
+            const bodyH = p.isDucking ? 15 : 25; const lr = 6;
+            let lx = side * 7; let ly = bodyH + 2;
             if (isZipping) { lx += Math.sin(p.frameCount * 0.1) * 8; ly -= 2; }
             else if (!p.grounded || p.isClimbing) { ly += 2; lx += side * 2; }
             else if (p.velX !== 0) {
-                const animSpeed = 0.2;
-                const offset = (side === 1) ? 0 : Math.PI;
-                lx += Math.sin(p.frameCount * animSpeed + offset) * 8;
-                ly += Math.abs(Math.cos(p.frameCount * animSpeed + offset)) * 4;
+                const as = 0.2; const os = (side === 1) ? 0 : Math.PI;
+                lx += Math.sin(p.frameCount * as + os) * 8; ly += Math.abs(Math.cos(p.frameCount * as + os)) * 4;
             }
-            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(lx, ly, legRadius, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(lx, ly, lr, 0, Math.PI * 2); ctx.fill();
             ctx.restore();
         }
 
         function drawPlayer(ctx, p) {
-            ctx.save(); 
-            ctx.translate(p.x + p.width/2, p.y + 12);
-            ctx.scale(-p.dir, 1);
+            ctx.save(); ctx.translate(p.x + p.width/2, p.y + 12); ctx.scale(-p.dir, 1);
             if (p.isZipping) { ctx.rotate(Math.sin(p.frameCount * 0.1) * 0.2); }
-            let breathe = Math.sin(p.frameCount * 0.1) * 1.5;
-            if (p.velX !== 0 || !p.grounded || p.isClimbing || p.isZipping) breathe = 0;
-            drawLeg(ctx, p, -1, p.isZipping); 
-            drawLeg(ctx, p, 1, p.isZipping);  
+            let br = Math.sin(p.frameCount * 0.1) * 1.5;
+            if (p.velX !== 0 || !p.grounded || p.isClimbing || p.isZipping) br = 0;
+            drawLeg(ctx, p, -1, p.isZipping); drawLeg(ctx, p, 1, p.isZipping);  
             if (p.isZipping) {
-                const handCycle = Math.sin(p.frameCount * 0.15);
+                const hc = Math.sin(p.frameCount * 0.15);
                 ctx.strokeStyle = '#3399ff'; ctx.lineWidth = 6; ctx.lineCap = 'round';
-                let leftHandY = -25 + (handCycle > 0 ? handCycle * 10 : 0);
-                ctx.beginPath(); ctx.moveTo(-5, 5); ctx.lineTo(-12, leftHandY); ctx.stroke();
-                ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(-12, leftHandY, 5, 0, Math.PI * 2); ctx.fill();
-                let rightHandY = -25 + (handCycle < 0 ? -handCycle * 10 : 0);
-                ctx.beginPath(); ctx.moveTo(5, 5); ctx.lineTo(12, rightHandY); ctx.stroke();
-                ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(12, rightHandY, 5, 0, Math.PI * 2); ctx.fill();
+                let lh = -25 + (hc > 0 ? hc * 10 : 0); ctx.beginPath(); ctx.moveTo(-5, 5); ctx.lineTo(-12, lh); ctx.stroke();
+                ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(-12, lh, 5, 0, Math.PI * 2); ctx.fill();
+                let rh = -25 + (hc < 0 ? -hc * 10 : 0); ctx.beginPath(); ctx.moveTo(5, 5); ctx.lineTo(12, rh); ctx.stroke();
+                ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(12, rh, 5, 0, Math.PI * 2); ctx.fill();
             } else {
-                let armAngle = p.isClimbing ? Math.PI : 0;
-                if (p.velX !== 0 && p.grounded) armAngle = Math.sin(p.frameCount * 0.2) * 0.5;
-                ctx.save(); ctx.translate(0, 5); ctx.rotate(armAngle); ctx.fillStyle = '#3399ff'; ctx.fillRect(-15, 0, 6, 18); ctx.fillRect(9, 0, 6, 18); ctx.restore();
+                let aa = p.isClimbing ? Math.PI : 0;
+                if (p.velX !== 0 && p.grounded) aa = Math.sin(p.frameCount * 0.2) * 0.5;
+                ctx.save(); ctx.translate(0, 5); ctx.rotate(aa); ctx.fillStyle = '#3399ff'; ctx.fillRect(-15, 0, 6, 18); ctx.fillRect(9, 0, 6, 18); ctx.restore();
             }
-            ctx.fillStyle = '#3399ff'; let bodyH = p.isDucking ? 15 : 25; ctx.fillRect(-10, 0 + breathe, 20, bodyH);
-            ctx.translate(0, breathe); ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(0, -2, 12, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#3399ff'; let bh = p.isDucking ? 15 : 25; ctx.fillRect(-10, 0 + br, 20, bh);
+            ctx.translate(0, br); ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(0, -2, 12, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(-4, -4, 2, 0, Math.PI * 2); ctx.arc(-8, -4, 2, 0, Math.PI * 2); ctx.fill();
             ctx.fillStyle = '#ff4d4d'; ctx.beginPath(); ctx.arc(0, -7, 15, Math.PI, 0); ctx.fill(); ctx.fillRect(-15, -10, 30, 4);
             ctx.restore();
@@ -614,17 +624,15 @@
                 ctx.beginPath(); ctx.moveTo(v.x, v.y); ctx.lineTo(v.x, v.y + v.height); ctx.stroke();
                 ctx.fillStyle = '#32CD32';
                 for(let i=0; i<v.height; i+=20) {
-                    ctx.beginPath(); ctx.ellipse(v.x + 5, v.y + i, 8, 4, 0.5, 0, Math.PI * 2); ctx.fill();
-                    ctx.beginPath(); ctx.ellipse(v.x - 5, v.y + i + 10, 8, 4, -0.5, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(v.x + 5, v.y + i, 4, 0, Math.PI * 2); ctx.fill(); // Su dung arc thay cho ellipse
+                    ctx.beginPath(); ctx.arc(v.x - 5, v.y + i + 10, 4, 0, Math.PI * 2); ctx.fill();
                 }
                 ctx.restore();
             });
             ziplines.forEach(z => {
                 ctx.save(); ctx.strokeStyle = '#777'; ctx.lineWidth = 3; ctx.setLineDash([5, 5]);
                 ctx.beginPath(); ctx.moveTo(z.x1, z.y1); ctx.lineTo(z.x2, z.y2); ctx.stroke();
-                ctx.setLineDash([]); ctx.fillStyle = '#555';
-                ctx.fillRect(z.x1 - 5, z.y1 - 10, 10, 20); ctx.fillRect(z.x2 - 5, z.y2 - 10, 10, 20);
-                ctx.restore();
+                ctx.setLineDash([]); ctx.fillStyle = '#555'; ctx.fillRect(z.x1 - 5, z.y1 - 10, 10, 20); ctx.fillRect(z.x2 - 5, z.y2 - 10, 10, 20); ctx.restore();
             });
             for (let p of platforms) {
                 if (p.type === 'chain_conveyor') { drawChainConveyor(ctx, p); }
