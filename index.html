@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kid's Adventure - Standard Left Movement</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
+    <title>Kid's Adventure - Touch Zone Edition</title>
     <!-- Import font chu viet tay Patrick Hand -->
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
     <style>
@@ -18,7 +18,7 @@
             background-color: #f0f0f0;
             font-family: 'Patrick Hand', cursive;
             overflow: hidden;
-            touch-action: none;
+            touch-action: none; /* Ngan chan cac thao tac zoom/pan mac dinh */
         }
 
         #game-container {
@@ -30,10 +30,16 @@
                 linear-gradient(rgba(100, 149, 237, 0.1) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(100, 149, 237, 0.1) 1px, transparent 1px);
             background-size: 20px 20px;
+            width: 800px;
+            height: 400px;
+            max-width: 100vw;
+            max-height: 100vh;
         }
 
         canvas {
             display: block;
+            width: 100%;
+            height: 100%;
         }
 
         #ui-overlay {
@@ -47,6 +53,7 @@
             align-items: center;
             justify-content: center;
             pointer-events: none;
+            z-index: 10;
         }
 
         .screen {
@@ -87,6 +94,7 @@
             padding: 5px 15px;
             border-radius: 10px;
             border: 2px solid #ff4d4d;
+            z-index: 5;
         }
 
         button {
@@ -102,46 +110,27 @@
             font-weight: bold;
         }
 
-        button:hover {
-            background-color: #ff1a1a;
-            transform: scale(1.05);
-        }
-
-        #mobile-controls {
+        /* Vung cam cam ung an (Touch Zones) */
+        #touch-zones {
             position: absolute;
-            bottom: 20px;
+            top: 0;
             left: 0;
             width: 100%;
-            display: none; 
-            justify-content: space-between;
-            padding: 0 20px;
-            box-sizing: border-box;
-            pointer-events: none;
-        }
-
-        .control-group {
-            display: flex;
-            gap: 15px;
+            height: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            z-index: 20;
             pointer-events: auto;
         }
 
-        .btn {
-            width: 65px;
-            height: 65px;
-            background: rgba(0, 0, 0, 0.2);
-            border: 2px solid rgba(0,0,0,0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #333;
-            font-size: 32px;
+        .zone {
+            /* De an vung cham, chung ta de transparent. 
+               Co the bat background mau nhe de debug neu muon. */
+            background: transparent; 
             user-select: none;
-        }
-
-        .btn:active {
-            background: rgba(255, 77, 77, 0.6);
-            color: white;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         #message-box {
@@ -156,6 +145,7 @@
             font-weight: bold;
             display: none;
             pointer-events: none;
+            z-index: 30;
         }
     </style>
 </head>
@@ -170,7 +160,7 @@
                 <h1>Kid's Journey</h1>
                 <p>Enjoy the smooth and natural movement!</p>
                 <button onclick="startGame()">Start Game</button>
-                <p style="font-size: 16px;">Use Arrows or Touch to play</p>
+                <p style="font-size: 16px;">Hold Left Screen to move. Tap Right Screen to Jump/Crouch.</p>
             </div>
 
             <div id="game-over-screen" class="screen">
@@ -180,15 +170,12 @@
             </div>
         </div>
 
-        <div id="mobile-controls">
-            <div class="control-group">
-                <div class="btn" id="btn-left">◀</div>
-                <div class="btn" id="btn-right">▶</div>
-            </div>
-            <div class="control-group">
-                <div class="btn" id="btn-down">▼</div>
-                <div class="btn" id="btn-up">▲</div>
-            </div>
+        <!-- He thong vung cham an -->
+        <div id="touch-zones">
+            <div class="zone" id="zone-tl"></div> <!-- Top Left: Move Right -->
+            <div class="zone" id="zone-tr"></div> <!-- Top Right: Jump -->
+            <div class="zone" id="zone-bl"></div> <!-- Bottom Left: Move Left -->
+            <div class="zone" id="zone-br"></div> <!-- Bottom Right: Crouch -->
         </div>
         
         <div id="message-box"></div>
@@ -199,17 +186,13 @@
         const ctx = canvas.getContext('2d');
         const startScreen = document.getElementById('start-screen');
         const gameOverScreen = document.getElementById('game-over-screen');
-        const mobileControls = document.getElementById('mobile-controls');
         const messageBox = document.getElementById('message-box');
         const scoreElement = document.getElementById('score-display');
         const finalScoreElement = document.getElementById('final-score');
 
+        // Kich thuoc noi tai cua game
         canvas.width = 800;
         canvas.height = 400;
-
-        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-            mobileControls.style.display = 'flex';
-        }
 
         let gameState = 'START';
         let player = {};
@@ -234,7 +217,7 @@
                 velX: 0, velY: 0, speed: 5, jumpForce: 11,
                 grounded: false, isDucking: false, canDoubleJump: true,
                 isClimbing: false, isZipping: false,
-                frameCount: 0, dir: -1 // Mac dinh huong sang trai (dir = -1)
+                frameCount: 0, dir: -1 
             };
 
             platforms = [{ x: 0, y: 350, width: 800, height: 50, type: 'ground' }];
@@ -260,17 +243,32 @@
             scoreElement.innerText = "Distance: " + Math.floor(score) + "m";
         }
 
+        // --- XU LY DIEU KHIEN (KEYBOARD & TOUCH ZONES) ---
         window.addEventListener('keydown', e => keys[e.code] = true);
         window.addEventListener('keyup', e => keys[e.code] = false);
 
-        const setupMobileBtn = (id, key) => {
-            const btn = document.getElementById(id);
-            if(!btn) return;
-            btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; });
-            btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; });
+        // Gan su kien cho cac vung cham an
+        const setupTouchZone = (id, key) => {
+            const zone = document.getElementById(id);
+            zone.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                keys[key] = true;
+            }, { passive: false });
+            zone.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                keys[key] = false;
+            }, { passive: false });
+            zone.addEventListener('touchcancel', (e) => {
+                e.preventDefault();
+                keys[key] = false;
+            }, { passive: false });
         };
-        setupMobileBtn('btn-left', 'ArrowLeft'); setupMobileBtn('btn-right', 'ArrowRight');
-        setupMobileBtn('btn-up', 'ArrowUp'); setupMobileBtn('btn-down', 'ArrowDown');
+
+        // Thiet lap theo yeu cau nguoi dung
+        setupTouchZone('zone-tl', 'ArrowRight'); // Top Left -> Move Right (Tiến)
+        setupTouchZone('zone-bl', 'ArrowLeft');  // Bottom Left -> Move Left
+        setupTouchZone('zone-tr', 'ArrowUp');    // Top Right -> Jump
+        setupTouchZone('zone-br', 'ArrowDown');  // Bottom Right -> Crouch/Duck
 
         function spawnNextChunk() {
             const rand = Math.random();
@@ -354,7 +352,7 @@
                 }
             } else if (player.isZipping) {
                 player.velY = 0; player.x += 3; 
-                player.dir = 1; // Face forward when zipping
+                player.dir = 1; 
                 let foundZ = false;
                 for (let z of ziplines) {
                     if (player.x >= z.x1 && player.x <= z.x2) {
@@ -526,11 +524,8 @@
             ctx.save();
             const bodyH = p.isDucking ? 15 : 25;
             const legRadius = 6;
-            
-            // Toa do chân (vẽ cho tư thế chuẩn là nhìn sang TRÁI)
             let lx = side * 7; 
             let ly = bodyH + 2;
-
             if (isZipping) {
                 lx += Math.sin(p.frameCount * 0.1) * 8; 
                 ly -= 2;
@@ -539,38 +534,23 @@
                 lx += side * 2;
             } else if (p.velX !== 0) {
                 const animSpeed = 0.2;
-                // Offset de hai chan buoc so le
                 const offset = (side === 1) ? 0 : Math.PI;
-                // Su dung ham sin de tao chuyen dong buoc chan tron tria
                 lx += Math.sin(p.frameCount * animSpeed + offset) * 8;
                 ly += Math.abs(Math.cos(p.frameCount * animSpeed + offset)) * 4;
             }
-
-            ctx.fillStyle = '#111';
-            ctx.beginPath();
-            ctx.arc(lx, ly, legRadius, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(lx, ly, legRadius, 0, Math.PI * 2); ctx.fill();
             ctx.restore();
         }
 
         function drawPlayer(ctx, p) {
             ctx.save(); 
             ctx.translate(p.x + p.width/2, p.y + 12);
-            
-            // CHUAN HOA THEO HUONG TRAI:
-            // p.dir = -1 (Trai) -> scale(1, 1) -> Giu nguyen ban ve chuan
-            // p.dir = 1 (Phai) -> scale(-1, 1) -> Phan chieu ban ve sang phai
             ctx.scale(-p.dir, 1);
-
             if (p.isZipping) { ctx.rotate(Math.sin(p.frameCount * 0.1) * 0.2); }
             let breathe = Math.sin(p.frameCount * 0.1) * 1.5;
             if (p.velX !== 0 || !p.grounded || p.isClimbing || p.isZipping) breathe = 0;
-            
-            // 1. Ve chan (da duoc tinh toan theo chuan huong Trai)
             drawLeg(ctx, p, -1, p.isZipping); 
             drawLeg(ctx, p, 1, p.isZipping);  
-
-            // 2. Ve tay
             if (p.isZipping) {
                 const handCycle = Math.sin(p.frameCount * 0.15);
                 ctx.strokeStyle = '#3399ff'; ctx.lineWidth = 6; ctx.lineCap = 'round';
@@ -585,33 +565,10 @@
                 if (p.velX !== 0 && p.grounded) armAngle = Math.sin(p.frameCount * 0.2) * 0.5;
                 ctx.save(); ctx.translate(0, 5); ctx.rotate(armAngle); ctx.fillStyle = '#3399ff'; ctx.fillRect(-15, 0, 6, 18); ctx.fillRect(9, 0, 6, 18); ctx.restore();
             }
-            
-            // 3. Ve than
-            ctx.fillStyle = '#3399ff'; 
-            let bodyH = p.isDucking ? 15 : 25; 
-            ctx.fillRect(-10, 0 + breathe, 20, bodyH);
-            
-            // 4. Ve dau
-            ctx.translate(0, breathe); 
-            ctx.fillStyle = '#ffdbac'; 
-            ctx.beginPath(); 
-            ctx.arc(0, -2, 12, 0, Math.PI * 2); 
-            ctx.fill();
-            
-            // Mat (Vẽ hướng sang TRÁI làm chuẩn: tọa độ X âm)
-            ctx.fillStyle = '#111'; 
-            ctx.beginPath(); 
-            ctx.arc(-4, -4, 2, 0, Math.PI * 2); 
-            ctx.arc(-8, -4, 2, 0, Math.PI * 2); 
-            ctx.fill();
-            
-            // Mu
-            ctx.fillStyle = '#ff4d4d'; 
-            ctx.beginPath(); 
-            ctx.arc(0, -7, 15, Math.PI, 0); 
-            ctx.fill(); 
-            ctx.fillRect(-15, -10, 30, 4);
-            
+            ctx.fillStyle = '#3399ff'; let bodyH = p.isDucking ? 15 : 25; ctx.fillRect(-10, 0 + breathe, 20, bodyH);
+            ctx.translate(0, breathe); ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(0, -2, 12, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(-4, -4, 2, 0, Math.PI * 2); ctx.arc(-8, -4, 2, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#ff4d4d'; ctx.beginPath(); ctx.arc(0, -7, 15, Math.PI, 0); ctx.fill(); ctx.fillRect(-15, -10, 30, 4);
             ctx.restore();
         }
 
@@ -619,7 +576,6 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.arc(700, 60, 25, 0, Math.PI * 2); ctx.fill();
             clouds.forEach(c => { ctx.fillStyle = 'white'; ctx.globalAlpha = 0.8; ctx.beginPath(); ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; });
-
             ctx.save(); ctx.translate(-cameraX, 0);
             vines.forEach(v => {
                 ctx.save(); ctx.strokeStyle = '#228B22'; ctx.lineWidth = 4;
