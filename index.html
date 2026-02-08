@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
-    <title>Kid's Adventure - Touch Zone Fixed</title>
+    <title>Kid's Adventure - Pro Touch Controls</title>
     <!-- Import font chu viet tay Patrick Hand -->
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
     <style>
@@ -53,7 +53,7 @@
             align-items: center;
             justify-content: center;
             pointer-events: none;
-            z-index: 50; /* Dat cao hon touch zones de co the bam nut */
+            z-index: 50; 
         }
 
         .screen {
@@ -161,9 +161,9 @@
         <div id="ui-overlay">
             <div id="start-screen" class="screen active">
                 <h1>Kid's Journey</h1>
-                <p>Enjoy the smooth and natural movement!</p>
+                <p>Slide your finger between corners to move!</p>
                 <button onclick="startGame()">Start Game</button>
-                <p style="font-size: 16px;">Hold Left Screen to move. Tap Right Screen to Jump/Crouch.</p>
+                <p style="font-size: 16px;">Top-Left: Right | Bottom-Left: Left | Top-Right: Jump | Bottom-Right: Duck</p>
             </div>
 
             <div id="game-over-screen" class="screen">
@@ -175,10 +175,10 @@
 
         <!-- He thong vung cham an -->
         <div id="touch-zones">
-            <div class="zone" id="zone-tl"></div> <!-- Top Left: Move Right (Tiến) -->
-            <div class="zone" id="zone-tr"></div> <!-- Top Right: Jump -->
-            <div class="zone" id="zone-bl"></div> <!-- Bottom Left: Move Left -->
-            <div class="zone" id="zone-br"></div> <!-- Bottom Right: Crouch -->
+            <div class="zone" data-key="ArrowRight" id="zone-tl"></div> <!-- Top Left -> Tiến -->
+            <div class="zone" data-key="ArrowUp" id="zone-tr"></div>    <!-- Top Right -> Nhảy -->
+            <div class="zone" data-key="ArrowLeft" id="zone-bl"></div>  <!-- Bottom Left -> Lùi -->
+            <div class="zone" data-key="ArrowDown" id="zone-br"></div>  <!-- Bottom Right -> Ngồi -->
         </div>
         
         <div id="message-box"></div>
@@ -211,6 +211,9 @@
         let cameraX = 0;
         let lastGeneratedX = 0;
 
+        // Luu tru trang thai cam ung hien tai
+        let activeTouches = {}; // Mapping touch.identifier -> key
+
         // --- KHOI TAO GAME ---
         function initGame() {
             score = 0; cameraX = 0; lastGeneratedX = 0;
@@ -235,8 +238,9 @@
             lastGeneratedX = 800;
             for(let i=0; i<8; i++) spawnNextChunk();
             
-            // An vung cham khi chua bat dau
             touchZonesContainer.style.display = 'none';
+            keys = {}; // Reset keys
+            activeTouches = {};
         }
 
         function startGame() {
@@ -244,7 +248,6 @@
             gameState = 'PLAYING';
             startScreen.classList.remove('active');
             gameOverScreen.classList.remove('active');
-            // Hien thi vung cham khi game bat dau
             touchZonesContainer.style.display = 'grid';
         }
 
@@ -252,32 +255,52 @@
             scoreElement.innerText = "Distance: " + Math.floor(score) + "m";
         }
 
-        // --- XU LY DIEU KHIEN (KEYBOARD & TOUCH ZONES) ---
+        // --- XU LY DIEU KHIEN ---
+
+        // Ban phim
         window.addEventListener('keydown', e => keys[e.code] = true);
         window.addEventListener('keyup', e => keys[e.code] = false);
 
-        // Gan su kien cho cac vung cham an
-        const setupTouchZone = (id, key) => {
-            const zone = document.getElementById(id);
-            zone.addEventListener('touchstart', (e) => {
-                if (gameState !== 'PLAYING') return;
-                e.preventDefault();
-                keys[key] = true;
-            }, { passive: false });
-            zone.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                keys[key] = false;
-            }, { passive: false });
-            zone.addEventListener('touchcancel', (e) => {
-                e.preventDefault();
-                keys[key] = false;
-            }, { passive: false });
+        // He thong Cam ung thong minh (Dynamic Slide Control)
+        const handleTouch = (e) => {
+            if (gameState !== 'PLAYING') return;
+            e.preventDefault();
+
+            // Duyet qua tat ca cac diem cham dang hoat dong
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const touch = e.changedTouches[i];
+                const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                const touchId = touch.identifier;
+
+                if (e.type === 'touchstart' || e.type === 'touchmove') {
+                    const newKey = target ? target.getAttribute('data-key') : null;
+                    const oldKey = activeTouches[touchId];
+
+                    if (newKey !== oldKey) {
+                        // Neu di sang vung moi, nha phim cu
+                        if (oldKey) keys[oldKey] = false;
+                        // Nhan phim moi
+                        if (newKey) {
+                            keys[newKey] = true;
+                            activeTouches[touchId] = newKey;
+                        } else {
+                            delete activeTouches[touchId];
+                        }
+                    }
+                } else if (e.type === 'touchend' || e.type === 'touchcancel') {
+                    const keyToRelease = activeTouches[touchId];
+                    if (keyToRelease) {
+                        keys[keyToRelease] = false;
+                        delete activeTouches[touchId];
+                    }
+                }
+            }
         };
 
-        setupTouchZone('zone-tl', 'ArrowRight'); // Top Left -> Tiến sang Phải
-        setupTouchZone('zone-bl', 'ArrowLeft');  // Bottom Left -> Sang Trái
-        setupTouchZone('zone-tr', 'ArrowUp');    // Top Right -> Nhảy
-        setupTouchZone('zone-br', 'ArrowDown');  // Bottom Right -> Ngồi
+        touchZonesContainer.addEventListener('touchstart', handleTouch, { passive: false });
+        touchZonesContainer.addEventListener('touchmove', handleTouch, { passive: false });
+        touchZonesContainer.addEventListener('touchend', handleTouch, { passive: false });
+        touchZonesContainer.addEventListener('touchcancel', handleTouch, { passive: false });
 
         function spawnNextChunk() {
             const rand = Math.random();
