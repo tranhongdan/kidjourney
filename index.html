@@ -18,15 +18,15 @@
             background-color: #f0f0f0;
             font-family: 'Patrick Hand', cursive;
             overflow: hidden;
-            touch-action: none; 
+            touch-action: none;
         }
 
         #game-container {
             position: relative;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             border: 5px solid #555;
-            background-color: #e0f7fa; 
-            background-image: 
+            background-color: #e0f7fa;
+            background-image:
                 linear-gradient(rgba(100, 149, 237, 0.1) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(100, 149, 237, 0.1) 1px, transparent 1px);
             background-size: 20px 20px;
@@ -69,7 +69,7 @@
             align-items: center;
             justify-content: center;
             pointer-events: none;
-            z-index: 100; 
+            z-index: 100;
         }
 
         .screen {
@@ -157,7 +157,7 @@
         }
 
         .zone {
-            background: transparent; 
+            background: transparent;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -268,11 +268,11 @@
                 velX: 0, velY: 0, speed: 5, jumpForce: 11,
                 grounded: false, isDucking: false, canDoubleJump: true,
                 isClimbing: false, isZipping: false,
-                frameCount: 0, dir: -1 
-            };
+                frameCount: 0, dir: -1
+             };
 
             platforms = [{ x: 0, y: 350, width: 800, height: 50, type: 'ground' }];
-            enemies = []; particles = []; vines = []; ziplines = [];
+            enemies = []; particles = []; vines = []; ziplines = []; 
             
             clouds = [];
             for(let i=0; i<6; i++) {
@@ -282,8 +282,8 @@
             lastGeneratedX = 800;
             for(let i=0; i<8; i++) spawnNextChunk();
             
-            keys = {}; 
-            activeTouches = {};
+            keys = {};
+            activeTouches = {}; 
         }
 
         function startGame() {
@@ -349,10 +349,10 @@
                 const chainWidth = 350 + Math.random() * 150;
                 platforms.push({ x: nextX, y: 300, width: 60, height: 30, type: 'platform' });
                 platforms.push({ 
-                    x: nextX + 60, y: 280, width: chainWidth, height: 20, 
-                    type: 'chain_conveyor', bladeOffset: 0, 
-                    bladeSpeed: 0.8 + Math.random() * 0.4 
-                });
+                     x: nextX + 60, y: 280, width: chainWidth, height: 20, 
+                     type: 'chain_conveyor', bladeOffset: 0, 
+                     bladeSpeed: 0.8 + Math.random() * 0.4 
+                 });
                 platforms.push({ x: nextX + 60 + chainWidth, y: 300, width: 120, height: 30, type: 'platform' });
                 lastGeneratedX = nextX + chainWidth + 180;
             } else if (rand < 0.4) {
@@ -365,15 +365,15 @@
             } else {
                 platforms.push({ x: nextX, y: nextY, width: width, height: 30, type: 'platform' });
                 
-                // --- HẦM GẠCH BẮT BUỘC CHUI ---
+                // --- HAM GACH BAT BUOC CHUI ---
                 if (Math.random() < 0.4 && width > 160) {
                     platforms.push({ 
-                        x: nextX + width/2 - 40, 
-                        y: nextY - 45, 
-                        width: 80, 
-                        height: 45, 
-                        type: 'arch' 
-                    });
+                         x: nextX + width/2 - 40, 
+                         y: nextY - 45, 
+                         width: 80, 
+                         height: 45, 
+                         type: 'arch' 
+                     });
                 } else {
                     let eRand = Math.random();
                     if (eRand < 0.2) { enemies.push({ type: 'bird', x: nextX + width + 200, y: nextY - 80 - Math.random() * 60, width: 40, height: 30, speed: 1.5, dir: -1, hp: 1 }); }
@@ -422,13 +422,13 @@
                     player.isClimbing = false; if (keys['Space']) player.velY = -player.jumpForce;
                 }
             } else if (player.isZipping) {
-                player.velY = 0; player.x += 3; player.dir = 1; 
-                let fz = false;
+                player.velY = 0; player.x += 3; player.dir = 1;
+                 let fz = false;
                 for (let z of ziplines) {
                     if (player.x >= z.x1 && player.x <= z.x2) {
                         let t = (player.x - z.x1) / (z.x2 - z.x1);
-                        player.y = z.y1 + t * (z.y2 - z.y1) + 20; 
-                        fz = true; break;
+                        player.y = z.y1 + t * (z.y2 - z.y1) + 20;
+                         fz = true; break;
                     }
                 }
                 if (!fz) { player.isZipping = false; player.velY = 2; }
@@ -438,7 +438,7 @@
                 else if (keys['ArrowRight']) { player.velX = player.speed; player.dir = 1; }
                 else player.velX = 0;
 
-                // --- XỬ LÝ NGỒI (KHÔNG TỰ ĐỘNG CHUI) ---
+                // --- XU LY NGOI ---
                 if (keys['ArrowDown']) {
                     if (!player.isDucking) { player.isDucking = true; player.height = 25; player.y += 20; }
                 } else {
@@ -473,11 +473,7 @@
                             }
                         }
                     } else if (p.type === 'arch') {
-                        // --- LOGIC VA CHAM HẦM GẠCH (KHÔNG CHO PHÉP ĐỨNG) ---
                         if (player.x + player.width > p.x && player.x < p.x + p.width) {
-                            // Nếu đầu nhân vật cao hơn nóc hầm HOẶC không đang ngồi -> OVER
-                            // Chân đứng trên mặt đất, y hầm là y - 45. Nhân vật đứng y là y - 45.
-                            // Vì vậy nếu không ngồi (isDucking), chắc chắn sẽ chạm nóc.
                             if (!player.isDucking || player.y < p.y - 2) {
                                 endGame();
                                 showMessage("Chạm nóc hầm!");
@@ -497,19 +493,23 @@
                         const wc = (player.frameCount * 0.1) % (Math.PI * 2);
                         if (wc < Math.PI) e.x += e.speed * e.dir * 1.5;
                     } else { e.x += (e.speed || 0) * (e.dir || 1); }
-                    if (e.type === 'bird') { if (e.x < cameraX - 200 || e.x > cameraX + 1000) e.dir *= -1; }
+                    if (e.type === 'bird') { if (e.x < cameraX - 200 || e.x > cameraX + 1200) e.dir *= -1; }
                     else { if (e.x < e.startX || e.x + e.width > e.endX) e.dir *= -1; }
                 }
 
                 if (player.x < e.x + e.width && player.x + player.width > e.x && player.y < e.y + e.height && player.y + player.height > e.y) {
                     const playerFeet = player.y + player.height;
-                    const enemyMiddle = e.y + e.height * 0.7; 
-                    if (player.velY > 0 && playerFeet <= enemyMiddle + 15 && e.type !== 'spikes' && e.type !== 'bird') {
-                        if (e.type === 'bug' && e.hp > 1) { 
-                            e.hp--; player.velY = -player.jumpForce * 0.7; createParticles(e.x + 25, e.y, 'white', 5); 
-                        } else { 
-                            enemies.splice(i, 1); player.velY = -player.jumpForce * 0.7; 
-                        }
+                    const enemyMiddle = e.y + e.height * 0.7;
+                    
+                     if (player.velY > 0 && playerFeet <= enemyMiddle + 15 && e.type !== 'spikes' && e.type !== 'bird') {
+                        // Hieu ung tung bui khi giam quai
+                        createParticles(e.x + e.width/2, e.y + e.height, '#8d6e63', 12); 
+                        
+                        if (e.type === 'bug' && e.hp > 1) {
+                             e.hp--; player.velY = -player.jumpForce * 0.7; createParticles(e.x + 25, e.y, 'white', 5);
+                         } else {
+                             enemies.splice(i, 1); player.velY = -player.jumpForce * 0.7;
+                         }
                     } else { endGame(); }
                 }
             }
@@ -520,11 +520,11 @@
             player.frameCount++;
         }
 
-        function endGame() { 
-            gameState = 'GAMEOVER'; 
-            gameOverScreen.classList.add('active'); 
-            finalScoreElement.innerText = "Quãng đường: " + Math.floor(score) + "m"; 
-            touchZonesContainer.style.display = 'none';
+        function endGame() {
+             gameState = 'GAMEOVER';
+             gameOverScreen.classList.add('active');
+             finalScoreElement.innerText = "Quãng đường: " + Math.floor(score) + "m";
+             touchZonesContainer.style.display = 'none';
         }
 
         function createParticles(x, y, color, count) { for (let i = 0; i < count; i++) { particles.push({ x, y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, alpha: 1, color }); } }
@@ -563,10 +563,27 @@
                 }
                 if (e.hp > 1) { ctx.fillStyle = 'lime'; ctx.fillRect(e.x + 5, e.y - 15, 40, 4); }
             } else if (e.type === 'bird') {
-                ctx.fillStyle = '#00bfff'; ctx.beginPath(); ctx.ellipse(e.x + 20, e.y + 15, 18, 12, 0, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#6a1b9a'; ctx.beginPath(); ctx.arc(e.dir > 0 ? e.x + 32 : e.x + 8, e.y + 12, 2, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#ff8c00'; ctx.beginPath(); let bx = e.dir > 0 ? e.x + 38 : e.x + 2; ctx.moveTo(bx, e.y + 12); ctx.lineTo(bx + 10 * e.dir, e.y + 15); ctx.lineTo(bx, e.y + 18); ctx.fill();
-                ctx.fillStyle = '#1e90ff'; let wa = Math.sin(frameCount * 0.1) * 20; ctx.beginPath(); ctx.moveTo(e.x + 20, e.y + 15); ctx.lineTo(e.x - 5, e.y + 15 - wa); ctx.lineTo(e.x + 10, e.y + 25); ctx.fill();
+                // CHINH CANH CHIM: Lat toan bo chim theo huong e.dir
+                ctx.save();
+                ctx.translate(e.x + 20, e.y + 15);
+                ctx.scale(e.dir, 1); // Lat theo huong di chuyen
+                
+                // Than chim
+                ctx.fillStyle = '#00bfff'; ctx.beginPath(); ctx.ellipse(0, 0, 18, 12, 0, 0, Math.PI * 2); ctx.fill();
+                // Mat chim
+                ctx.fillStyle = '#6a1b9a'; ctx.beginPath(); ctx.arc(12, -3, 2, 0, Math.PI * 2); ctx.fill();
+                // Mo chim
+                ctx.fillStyle = '#ff8c00'; ctx.beginPath(); ctx.moveTo(18, -3); ctx.lineTo(28, 0); ctx.lineTo(18, 3); ctx.fill();
+                // Canh chim (flap)
+                ctx.fillStyle = '#1e90ff'; 
+                let wa = Math.sin(frameCount * 0.1) * 20; 
+                ctx.beginPath(); 
+                ctx.moveTo(0, 0); 
+                ctx.lineTo(-25, -wa); 
+                ctx.lineTo(-10, 10); 
+                ctx.fill();
+                
+                ctx.restore();
             } else if (e.type === 'spikes') {
                 ctx.fillStyle = '#2e7d32'; ctx.beginPath(); ctx.rect(e.x + 15, e.y + 5, 10, 40); ctx.fill();
                 ctx.strokeStyle = '#2e7d32'; ctx.lineWidth = 6; ctx.lineCap = 'round';
@@ -597,8 +614,8 @@
                 }
             } else {
                 let aa = (p.velX !== 0 && p.grounded) ? Math.sin(p.frameCount * 0.2) * 0.6 : 0;
-                ctx.save(); ctx.translate(0, 5); 
-                ctx.save(); ctx.rotate(-aa); ctx.fillStyle = '#2288ee'; ctx.fillRect(-14, 0, 6, 18); ctx.restore();
+                ctx.save(); ctx.translate(0, 5);
+                 ctx.save(); ctx.rotate(-aa); ctx.fillStyle = '#2288ee'; ctx.fillRect(-14, 0, 6, 18); ctx.restore();
                 ctx.save(); ctx.rotate(aa); ctx.fillStyle = '#3399ff'; ctx.fillRect(8, 0, 6, 18); ctx.restore();
                 ctx.restore();
             }
@@ -609,27 +626,19 @@
             ctx.restore();
         }
 
-        // --- DRAW BRICK UTILITY ---
         function drawBrickStructure(ctx, x, y, w, h) {
             ctx.save();
-            ctx.fillStyle = '#b71c1c'; // Mau do gach dam
+            ctx.fillStyle = '#b71c1c'; 
             ctx.fillRect(x, y, w, h);
-            
-            ctx.strokeStyle = '#ffffff'; // Gach trang giua cac vien
+            ctx.strokeStyle = '#ffffff'; 
             ctx.lineWidth = 1;
             ctx.globalAlpha = 0.4;
-            
-            const bW = 20; // Chieu rong 1 vien
-            const bH = 10; // Chieu cao 1 vien
-            
+            const bW = 20; const bH = 10;
             for(let j = 0; j < h; j += bH) {
-                // Duong nam ngang
                 ctx.beginPath();
                 ctx.moveTo(x, y + j);
                 ctx.lineTo(x + w, y + j);
                 ctx.stroke();
-                
-                // Duong thang dung (so le)
                 let offset = (j / bH) % 2 === 0 ? 0 : bW / 2;
                 for(let i = offset; i < w; i += bW) {
                     ctx.beginPath();
@@ -669,40 +678,46 @@
                             ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'white'; ctx.lineWidth = 1; ctx.stroke(); ctx.restore();
                         }
                     } ctx.restore();
-                } else if (p.type === 'arch') { 
-                    // --- VẼ HẦM TƯỜNG GẠCH TOÀN DIỆN ---
-                    // Cot trai
+                } else if (p.type === 'arch') {
                     drawBrickStructure(ctx, p.x, p.y, 12, p.height);
-                    // Cot phai
                     drawBrickStructure(ctx, p.x + p.width - 12, p.y, 12, p.height);
-                    // Noc ham gach day
                     drawBrickStructure(ctx, p.x, p.y - 15, p.width, 15);
                     
-                    // --- VẼ KINH KONG TRÊN NÓC ---
+                    // --- KINH KONG THO TREN NOC ---
                     ctx.save();
                     const kX = p.x + p.width / 2;
-                    const kY = p.y - 15; 
+                    const kY = p.y - 15;
+                    const breathe = Math.sin(Date.now() / 400) * 2;
                     
                     ctx.fillStyle = '#3e2723';
+                    // Dui
                     ctx.beginPath(); ctx.ellipse(kX - 25, kY - 4, 15, 6, 0, 0, Math.PI * 2); ctx.fill();
                     ctx.beginPath(); ctx.ellipse(kX + 25, kY - 4, 15, 6, 0, 0, Math.PI * 2); ctx.fill();
-                    ctx.beginPath(); ctx.ellipse(kX, kY - 35, 55, 45, 0, 0, Math.PI * 2); ctx.fill();
+                    // Than (Phinh ra khi tho)
+                    ctx.beginPath(); ctx.ellipse(kX, kY - 35, 55 + breathe, 45 + breathe/2, 0, 0, Math.PI * 2); ctx.fill();
+                    // Bung
                     ctx.fillStyle = '#5d4037';
-                    ctx.beginPath(); ctx.ellipse(kX, kY - 30, 35, 28, 0, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.ellipse(kX, kY - 30, 35 + breathe * 0.8, 28 + breathe * 0.5, 0, 0, Math.PI * 2); ctx.fill();
+                    // Tay
                     ctx.fillStyle = '#3e2723';
-                    ctx.beginPath(); ctx.ellipse(kX - 58, kY - 25, 20, 35, 0.2, 0, Math.PI * 2); ctx.fill();
-                    ctx.beginPath(); ctx.ellipse(kX + 58, kY - 25, 20, 35, -0.2, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.ellipse(kX - 58 - breathe/2, kY - 25, 20, 35, 0.2, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.ellipse(kX + 58 + breathe/2, kY - 25, 20, 35, -0.2, 0, Math.PI * 2); ctx.fill();
+                    // Dau
                     ctx.beginPath(); ctx.ellipse(kX, kY - 78, 32, 26, 0, 0, Math.PI * 2); ctx.fill();
+                    // Tai
                     ctx.beginPath(); ctx.arc(kX - 30, kY - 84, 9, 0, Math.PI*2); ctx.fill();
                     ctx.beginPath(); ctx.arc(kX + 30, kY - 84, 9, 0, Math.PI*2); ctx.fill();
+                    // Mom
                     ctx.fillStyle = '#8d6e63';
                     ctx.beginPath(); ctx.ellipse(kX, kY - 74, 24, 16, 0, 0, Math.PI * 2); ctx.fill();
+                    // Mat
                     ctx.fillStyle = 'white';
                     ctx.beginPath(); ctx.arc(kX - 10, kY - 86, 6, 0, Math.PI*2); ctx.fill();
                     ctx.beginPath(); ctx.arc(kX + 10, kY - 86, 6, 0, Math.PI*2); ctx.fill();
                     ctx.fillStyle = 'black';
                     ctx.beginPath(); ctx.arc(kX - 10, kY - 86, 3, 0, Math.PI*2); ctx.fill();
                     ctx.beginPath(); ctx.arc(kX + 10, kY - 86, 3, 0, Math.PI*2); ctx.fill();
+                    // Lo mui
                     ctx.beginPath(); ctx.arc(kX - 4, kY - 72, 2, 0, Math.PI*2); ctx.fill();
                     ctx.beginPath(); ctx.arc(kX + 4, kY - 72, 2, 0, Math.PI*2); ctx.fill();
                     ctx.restore();
@@ -717,11 +732,12 @@
 
         function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
         window.onload = function() { initGame(); gameLoop(); };
-        function showMessage(msg) { 
-            messageBox.innerText = msg; 
-            messageBox.style.display = 'block'; 
-            setTimeout(() => messageBox.style.display = 'none', 1500); 
-        }
+
+        function showMessage(msg) {
+             messageBox.innerText = msg;
+             messageBox.style.display = 'block';
+             setTimeout(() => messageBox.style.display = 'none', 1500);
+         }
     </script>
 </body>
 </html>
