@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
-    <title>Hanh Trinh Tuoi Tho - Brick Tunnel Master</title>
+    <title>Childhood Journey - Brick Tunnel Master</title>
     <!-- Import font chu viet tay Patrick Hand -->
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
     <style>
@@ -181,8 +181,8 @@
 
     <div id="orientation-overlay">
         <div style="font-size: 50px;">🔄</div>
-        <h2>Vui lòng xoay ngang màn hình</h2>
-        <p>Để có trải nghiệm thám hiểm tốt nhất!</p>
+        <h2>Please rotate your screen</h2>
+        <p>For the best adventure experience!</p>
     </div>
 
     <div id="game-container">
@@ -194,28 +194,28 @@
                 <h1>Kid's Journey</h1>
                 
                 <div class="instructions">
-                    <p><strong>Hướng dẫn chơi:</strong></p>
-                    <p>• Góc TRÊN TRÁI: Giữ để đi sang PHẢI (Tiến)</p>
-                    <p>• Góc DƯỚI TRÁI: Giữ để đi sang TRÁI (Lùi)</p>
-                    <p>• Góc TRÊN PHẢI: Chạm để NHẢY</p>
-                    <p>• Góc DƯỚI PHẢI: Chạm để NGỒI (Phải tự chui khi qua hầm!)</p>
-                    <p style="color: #d32f2f;">* Đứng chạm nóc hầm hoặc Kinh Kong là thua ngay!</p>
+                    <p><strong>How to Play:</strong></p>
+                    <p>• TOP LEFT: Hold to move RIGHT (Forward)</p>
+                    <p>• BOTTOM LEFT: Hold to move LEFT (Backward)</p>
+                    <p>• TOP RIGHT: Tap to JUMP</p>
+                    <p>• BOTTOM RIGHT: Tap to DUCK (You must duck to pass through tunnels!)</p>
+                    <p style="color: #d32f2f;">* Touching the tunnel roof or King Kong ends the game!</p>
                 </div>
 
-                <button onclick="startGame()">Bắt đầu chơi</button>
+                <button onclick="startGame()">Start Game</button>
 
                 <div class="copyright">
-                    Bản quyền: Trần Hồng Dân<br>
+                    Copyright: Trần Hồng Dân<br>
                     Email: tranhongdan@tranphudlk.edu.vn
                 </div>
             </div>
 
             <div id="game-over-screen" class="screen">
                 <h1 style="color: #333;">OOPS!</h1>
-                <p id="final-score" style="font-size: 24px;">Quãng đường: 0m</p>
-                <button onclick="startGame()">Chơi lại</button>
+                <p id="final-score" style="font-size: 24px;">Distance: 0m</p>
+                <button onclick="startGame()">Play Again</button>
                 <div class="copyright">
-                    Bản quyền: Trần Hồng Dân<br>
+                    Copyright: Trần Hồng Dân<br>
                     tranhongdan@tranphudlk.edu.vn
                 </div>
             </div>
@@ -476,7 +476,7 @@
                         if (player.x + player.width > p.x && player.x < p.x + p.width) {
                             if (!player.isDucking || player.y < p.y - 2) {
                                 endGame();
-                                showMessage("Chạm nóc hầm!");
+                                showMessage("Hit the roof!");
                                 return;
                             }
                         }
@@ -523,7 +523,7 @@
         function endGame() {
              gameState = 'GAMEOVER';
              gameOverScreen.classList.add('active');
-             finalScoreElement.innerText = "Quãng đường: " + Math.floor(score) + "m";
+             finalScoreElement.innerText = "Distance: " + Math.floor(score) + "m";
              touchZonesContainer.style.display = 'none';
         }
 
