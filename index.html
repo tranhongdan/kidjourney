@@ -518,6 +518,16 @@
             if (player.y > canvas.height + 150) endGame();
             particles.forEach((p, i) => { p.x += p.vx; p.y += p.vy; p.alpha -= 0.02; if (p.alpha <= 0) particles.splice(i, 1); });
             player.frameCount++;
+
+            // --- DON DEP MAP DA QUA (CLEANUP) ---
+            // Xoa cac doi tuong nam ngoai vung camera ben trai de giam tai
+            if (player.frameCount % 60 === 0) { // Kiem tra moi 60 frame (1 giay)
+                const cleanupThreshold = cameraX - 200; // Gioi han xoa
+                platforms = platforms.filter(p => p.x + p.width > cleanupThreshold);
+                enemies = enemies.filter(e => e.x + e.width > cleanupThreshold);
+                vines = vines.filter(v => v.x + 20 > cleanupThreshold);
+                ziplines = ziplines.filter(z => Math.max(z.x1, z.x2) > cleanupThreshold);
+            }
         }
 
         function endGame() {
@@ -535,11 +545,22 @@
                 const wc = (frameCount * 0.1) % (Math.PI * 2);
                 const ah = Math.max(0, Math.sin(wc) * 15);
                 const bl = 40 - (ah * 0.5);
-                ctx.fillStyle = '#7cfc00'; ctx.strokeStyle = '#32cd32'; ctx.lineWidth = 2;
+                ctx.lineWidth = 2;
                 for(let i=0; i<5; i++) {
                     let dx = e.x + (i * bl / 4); let dy = e.y + 15;
                     if (i > 0 && i < 4) dy -= ah * (1 - Math.abs(2-i)*0.5);
+                    
+                    // --- XU LY MAU SAC TUNG DOT (DA SUA LOI) ---
+                    // Tat ca cac dot deu mau xanh
+                    ctx.fillStyle = '#7cfc00'; 
+                    ctx.strokeStyle = '#32cd32';
+
                     ctx.beginPath(); ctx.arc(dx, dy, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                    
+                    // --- THEM CHAM DEN TREN DOT SAU ---
+                    ctx.fillStyle = 'black';
+                    ctx.beginPath(); ctx.arc(dx, dy, 1.5, 0, Math.PI * 2); ctx.fill();
+
                     if ((e.dir > 0 && i === 4) || (e.dir < 0 && i === 0)) {
                         ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(dx + 2*e.dir, dy - 2, 2, 0, Math.PI * 2); ctx.fill();
                         ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(dx + 3*e.dir, dy - 2, 1, 0, Math.PI * 2); ctx.fill();
@@ -687,7 +708,8 @@
                     ctx.save();
                     const kX = p.x + p.width / 2;
                     const kY = p.y - 15;
-                    const breathe = Math.sin(Date.now() / 400) * 2;
+                    // --- CHINH TOC DO VA DO MANH KHI THO ---
+                    const breathe = Math.sin(Date.now() / 200) * 4; // Nhanh hon (/200) va manh hon (*4)
                     
                     ctx.fillStyle = '#3e2723';
                     // Dui
