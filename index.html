@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
     <title>Childhood Journey - Brick Tunnel Master</title>
+    <!-- Import font chu viet tay Patrick Hand -->
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
     <style>
         body {
@@ -152,8 +153,8 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr 1fr;
-            /* Update: Tang z-index len 50 de cao hon score-display (40) */
-            z-index: 50;
+            /* Da cap nhat: z-index cao hon score-display (40) */
+            z-index: 60;
         }
 
         .zone {
@@ -561,9 +562,8 @@
             player.frameCount++;
 
             // --- DON DEP MAP DA QUA (CLEANUP) ---
-            // Xoa cac doi tuong nam ngoai vung camera ben trai de giam tai
-            if (player.frameCount % 60 === 0) { // Kiem tra moi 60 frame (1 giay)
-                const cleanupThreshold = cameraX - 200; // Gioi han xoa
+            if (player.frameCount % 60 === 0) {
+                const cleanupThreshold = cameraX - 200;
                 platforms = platforms.filter(p => p.x + p.width > cleanupThreshold);
                 enemies = enemies.filter(e => e.x + e.width > cleanupThreshold);
                 vines = vines.filter(v => v.x + 20 > cleanupThreshold);
@@ -591,14 +591,11 @@
                     let dx = e.x + (i * bl / 4); let dy = e.y + 15;
                     if (i > 0 && i < 4) dy -= ah * (1 - Math.abs(2-i)*0.5);
                     
-                    // --- XU LY MAU SAC TUNG DOT (DA SUA LOI) ---
-                    // Tat ca cac dot deu mau xanh
                     ctx.fillStyle = '#7cfc00'; 
                     ctx.strokeStyle = '#32cd32';
 
                     ctx.beginPath(); ctx.arc(dx, dy, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
                     
-                    // --- THEM CHAM DEN TREN DOT SAU ---
                     ctx.fillStyle = 'black';
                     ctx.beginPath(); ctx.arc(dx, dy, 1.5, 0, Math.PI * 2); ctx.fill();
 
@@ -625,68 +622,33 @@
                 }
                 if (e.hp > 1) { ctx.fillStyle = 'lime'; ctx.fillRect(e.x + 5, e.y - 15, 40, 4); }
             } else if (e.type === 'bird') {
-                // CHINH CANH CHIM: Lat toan bo chim theo huong e.dir
                 ctx.save();
                 ctx.translate(e.x + 20, e.y + 15);
-                ctx.scale(e.dir, 1); // Lat theo huong di chuyen
-                
-                // Than chim
+                ctx.scale(e.dir, 1);
                 ctx.fillStyle = '#00bfff'; ctx.beginPath(); ctx.ellipse(0, 0, 18, 12, 0, 0, Math.PI * 2); ctx.fill();
-                // Mat chim
                 ctx.fillStyle = '#6a1b9a'; ctx.beginPath(); ctx.arc(12, -3, 2, 0, Math.PI * 2); ctx.fill();
-                // Mo chim
                 ctx.fillStyle = '#ff8c00'; ctx.beginPath(); ctx.moveTo(18, -3); ctx.lineTo(28, 0); ctx.lineTo(18, 3); ctx.fill();
-                // Canh chim (flap)
                 ctx.fillStyle = '#1e90ff'; 
                 let wa = Math.sin(frameCount * 0.1) * 20; 
-                ctx.beginPath(); 
-                ctx.moveTo(0, 0); 
-                ctx.lineTo(-25, -wa); 
-                ctx.lineTo(-10, 10); 
-                ctx.fill();
-                
+                ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-25, -wa); ctx.lineTo(-10, 10); ctx.fill();
                 ctx.restore();
             } else if (e.type === 'frog') {
-                // --- VE ECH XANH ---
-                ctx.translate(e.x + 20, e.y + 17); // Tam ech
+                ctx.translate(e.x + 20, e.y + 17);
                 ctx.scale(e.dir, 1);
-
-                // Hieu ung phap phong (tho)
                 let breathe = 1 + Math.sin(frameCount * 0.1) * 0.05;
                 ctx.scale(1, breathe);
-
-                // Than ech
-                ctx.fillStyle = '#33cc33'; // Xanh la
-                ctx.beginPath(); ctx.ellipse(0, 0, 20, 15, 0, 0, Math.PI * 2); ctx.fill();
-                
-                // Chan sau (ngoi)
-                ctx.fillStyle = '#228b22';
-                ctx.beginPath(); ctx.ellipse(-15, 5, 10, 8, 0.5, 0, Math.PI * 2); ctx.fill();
-
-                // Mat ech (Nhap nhay theo chu ky)
-                // Chu ky 120 frame (~2s), nham mat trong 10 frame
+                ctx.fillStyle = '#33cc33'; ctx.beginPath(); ctx.ellipse(0, 0, 20, 15, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#228b22'; ctx.beginPath(); ctx.ellipse(-15, 5, 10, 8, 0.5, 0, Math.PI * 2); ctx.fill();
                 let isBlinking = (frameCount % 120 < 10);
-                
                 if (isBlinking) {
-                    // Ve mat nham (duong ke)
                     ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
                     ctx.beginPath(); ctx.moveTo(5, -12); ctx.lineTo(15, -12); ctx.stroke();
                 } else {
-                    // Ve mat mo (tron to)
-                    ctx.fillStyle = 'white';
-                    ctx.beginPath(); ctx.arc(10, -12, 6, 0, Math.PI * 2); ctx.fill();
-                    ctx.fillStyle = 'black'; // Con nguoi
-                    ctx.beginPath(); ctx.arc(12, -12, 2, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(10, -12, 6, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(12, -12, 2, 0, Math.PI * 2); ctx.fill();
                 }
-
-                // Ve luoi khi phong
                 if (e.tongueLen > 0) {
-                    ctx.fillStyle = '#ff0000'; // Do
-                    // Ve luoi tu mieng (vi tri tam 0,0, hoi len xiu la mieng)
-                    ctx.beginPath();
-                    ctx.rect(10, 0, e.tongueLen, 6); // Ve hinh chu nhat dai ra
-                    ctx.fill();
-                    // Dau luoi tron
+                    ctx.fillStyle = '#ff0000'; ctx.beginPath(); ctx.rect(10, 0, e.tongueLen, 6); ctx.fill();
                     ctx.beginPath(); ctx.arc(10 + e.tongueLen, 3, 3, 0, Math.PI * 2); ctx.fill();
                 }
             } else if (e.type === 'spikes') {
@@ -788,42 +750,31 @@
                     drawBrickStructure(ctx, p.x + p.width - 12, p.y, 12, p.height);
                     drawBrickStructure(ctx, p.x, p.y - 15, p.width, 15);
                     
-                    // --- KINH KONG THO TREN NOC ---
                     ctx.save();
                     const kX = p.x + p.width / 2;
                     const kY = p.y - 15;
-                    // --- CHINH TOC DO VA DO MANH KHI THO ---
-                    const breathe = Math.sin(Date.now() / 200) * 4; // Nhanh hon (/200) va manh hon (*4)
+                    const breathe = Math.sin(Date.now() / 200) * 4;
                     
                     ctx.fillStyle = '#3e2723';
-                    // Dui
                     ctx.beginPath(); ctx.ellipse(kX - 25, kY - 4, 15, 6, 0, 0, Math.PI * 2); ctx.fill();
                     ctx.beginPath(); ctx.ellipse(kX + 25, kY - 4, 15, 6, 0, 0, Math.PI * 2); ctx.fill();
-                    // Than (Phinh ra khi tho)
                     ctx.beginPath(); ctx.ellipse(kX, kY - 35, 55 + breathe, 45 + breathe/2, 0, 0, Math.PI * 2); ctx.fill();
-                    // Bung
                     ctx.fillStyle = '#5d4037';
                     ctx.beginPath(); ctx.ellipse(kX, kY - 30, 35 + breathe * 0.8, 28 + breathe * 0.5, 0, 0, Math.PI * 2); ctx.fill();
-                    // Tay
                     ctx.fillStyle = '#3e2723';
                     ctx.beginPath(); ctx.ellipse(kX - 58 - breathe/2, kY - 25, 20, 35, 0.2, 0, Math.PI * 2); ctx.fill();
                     ctx.beginPath(); ctx.ellipse(kX + 58 + breathe/2, kY - 25, 20, 35, -0.2, 0, Math.PI * 2); ctx.fill();
-                    // Dau
                     ctx.beginPath(); ctx.ellipse(kX, kY - 78, 32, 26, 0, 0, Math.PI * 2); ctx.fill();
-                    // Tai
                     ctx.beginPath(); ctx.arc(kX - 30, kY - 84, 9, 0, Math.PI*2); ctx.fill();
                     ctx.beginPath(); ctx.arc(kX + 30, kY - 84, 9, 0, Math.PI*2); ctx.fill();
-                    // Mom
                     ctx.fillStyle = '#8d6e63';
                     ctx.beginPath(); ctx.ellipse(kX, kY - 74, 24, 16, 0, 0, Math.PI * 2); ctx.fill();
-                    // Mat
                     ctx.fillStyle = 'white';
                     ctx.beginPath(); ctx.arc(kX - 10, kY - 86, 6, 0, Math.PI*2); ctx.fill();
                     ctx.beginPath(); ctx.arc(kX + 10, kY - 86, 6, 0, Math.PI*2); ctx.fill();
                     ctx.fillStyle = 'black';
                     ctx.beginPath(); ctx.arc(kX - 10, kY - 86, 3, 0, Math.PI*2); ctx.fill();
                     ctx.beginPath(); ctx.arc(kX + 10, kY - 86, 3, 0, Math.PI*2); ctx.fill();
-                    // Lo mui
                     ctx.beginPath(); ctx.arc(kX - 4, kY - 72, 2, 0, Math.PI*2); ctx.fill();
                     ctx.beginPath(); ctx.arc(kX + 4, kY - 72, 2, 0, Math.PI*2); ctx.fill();
                     ctx.restore();
@@ -831,7 +782,7 @@
             });
 
             for (let e of enemies) drawEnemy(ctx, e, player.frameCount);
-            particles.forEach((p => { ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill(); });
+            particles.forEach(p => { ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill(); });
             ctx.globalAlpha = 1; drawPlayer(ctx, player);
             ctx.restore();
         }
