@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
     <title>Childhood Journey - Brick Tunnel Master</title>
-    <!-- Import font chu viet tay Patrick Hand -->
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
     <style>
         body {
@@ -153,7 +152,8 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr 1fr;
-            z-index: 20;
+            /* Update: Tang z-index len 50 de cao hon score-display (40) */
+            z-index: 50;
         }
 
         .zone {
@@ -831,7 +831,7 @@
             });
 
             for (let e of enemies) drawEnemy(ctx, e, player.frameCount);
-            particles.forEach(p => { ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill(); });
+            particles.forEach((p => { ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill(); });
             ctx.globalAlpha = 1; drawPlayer(ctx, player);
             ctx.restore();
         }
