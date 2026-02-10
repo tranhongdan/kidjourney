@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
-    <title>Childhood Journey - Brick Tunnel Master</title>
+    <title>Childhood Journey - Notebook Adventure</title>
     <!-- Import font chu viet tay Patrick Hand -->
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap" rel="stylesheet">
     <style>
@@ -23,17 +23,19 @@
 
         #game-container {
             position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 5px solid #555;
-            background-color: #e0f7fa;
-            background-image:
-                linear-gradient(rgba(100, 149, 237, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(100, 149, 237, 0.1) 1px, transparent 1px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 3px solid #444; /* Vien mong hon */
+            background-color: #e1f5fe; /* Nen xanh blue nhat */
+            /* Hieu ung giay o ly rat nhat */
+            background-image: 
+                linear-gradient(rgba(33, 150, 243, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(33, 150, 243, 0.1) 1px, transparent 1px);
             background-size: 20px 20px;
             width: 800px;
             height: 400px;
             max-width: 100vw;
             max-height: 100vh;
+            border-radius: 5px;
         }
 
         canvas {
@@ -53,7 +55,6 @@
             justify-content: center;
             text-align: center;
         }
-
         @media (orientation: portrait) {
             #orientation-overlay { display: flex; }
         }
@@ -76,43 +77,43 @@
             display: none;
             text-align: center;
             pointer-events: auto;
-            background: rgba(255, 255, 255, 0.95);
+            background: #fff;
             padding: 20px 40px;
-            border-radius: 15px;
-            border: 3px solid #ff4d4d;
-            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            border-radius: 2px;
+            border: 2px solid #444; /* Vien mong hon */
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.1); 
             max-width: 85%;
         }
 
         .screen.active { display: block; }
 
         h1 {
-            color: #ff4d4d;
+            color: #333;
             font-size: 42px;
             margin: 0 0 5px 0;
-            text-shadow: 1px 1px #333;
+            text-decoration: underline;
+            text-decoration-style: wavy;
         }
 
         .instructions {
-            background: #fff9c4;
+            background: #fff;
             padding: 10px;
-            border-radius: 10px;
-            border: 2px dashed #fbc02d;
+            border: 1px dashed #555; /* Net dut manh hon */
             margin-bottom: 10px;
         }
 
         .instructions p {
-            font-size: 16px;
+            font-size: 18px;
             margin: 3px 0;
-            color: #5d4037;
+            color: #333;
             text-align: left;
         }
 
         .copyright {
             margin-top: 10px;
-            font-size: 13px;
-            color: #777;
-            border-top: 1px solid #eee;
+            font-size: 14px;
+            color: #555;
+            border-top: 1px solid #ccc;
             padding-top: 5px;
             line-height: 1.2;
         }
@@ -121,27 +122,33 @@
             position: absolute;
             top: 15px;
             left: 20px;
-            font-size: 28px;
+            font-size: 32px;
             font-weight: bold;
             color: #333;
-            background: rgba(255,255,255,0.8);
+            background: rgba(255, 255, 255, 0.5); /* Changed opacity to 0.5 */
             padding: 5px 15px;
-            border-radius: 10px;
-            border: 2px solid #ff4d4d;
+            border: 2px solid #444; /* Vien mong hon */
             z-index: 40;
+            box-shadow: 2px 2px 0 #ccc;
         }
 
         button {
             padding: 10px 40px;
             font-size: 26px;
             cursor: pointer;
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            border-radius: 50px;
+            background-color: #fff;
+            color: #333;
+            border: 2px solid #444; /* Vien mong hon */
+            border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px; 
             transition: transform 0.2s, background-color 0.2s;
             font-family: 'Patrick Hand', cursive;
             font-weight: bold;
+            box-shadow: 3px 3px 0 #555;
+        }
+        
+        button:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 #555;
         }
 
         #touch-zones {
@@ -153,7 +160,6 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr 1fr;
-            /* Da cap nhat: z-index cao hon score-display (40) */
             z-index: 60;
         }
 
@@ -166,15 +172,16 @@
             position: absolute;
             top: 20px;
             right: 20px;
-            background: rgba(211, 47, 47, 0.9);
-            color: white;
+            background: #fff;
+            color: #d32f2f;
             padding: 10px 20px;
-            border-radius: 10px;
+            border: 2px solid #444;
             font-size: 20px;
             font-weight: bold;
             display: none;
             pointer-events: none;
             z-index: 150;
+            box-shadow: 2px 2px 0 #555;
         }
     </style>
 </head>
@@ -192,15 +199,15 @@
         
         <div id="ui-overlay">
             <div id="start-screen" class="screen active">
-                <h1>Kid's Journey</h1>
+                <h1>Kid's Notebook Journey</h1>
                 
                 <div class="instructions">
                     <p><strong>How to Play:</strong></p>
                     <p>• TOP LEFT: Hold to move RIGHT (Forward)</p>
                     <p>• BOTTOM LEFT: Hold to move LEFT (Backward)</p>
                     <p>• TOP RIGHT: Tap to JUMP</p>
-                    <p>• BOTTOM RIGHT: Tap to DUCK (You must duck to pass through tunnels!)</p>
-                    <p style="color: #d32f2f;">* Touching the tunnel roof, King Kong or Frog's tongue ends the game!</p>
+                    <p>• BOTTOM RIGHT: Tap to DUCK (Duck to pass tunnels!)</p>
+                    <p style="color: #d32f2f;">* Touching walls, King Kong or Frog's tongue ends the game!</p>
                 </div>
 
                 <button onclick="startGame()">Start Game</button>
@@ -212,7 +219,7 @@
             </div>
 
             <div id="game-over-screen" class="screen">
-                <h1 style="color: #333;">OOPS!</h1>
+                <h1>OOPS!</h1>
                 <p id="final-score" style="font-size: 24px;">Distance: 0m</p>
                 <button onclick="startGame()">Play Again</button>
                 <div class="copyright">
@@ -259,32 +266,48 @@
         let lastGeneratedX = 0;
         let activeTouches = {}; 
 
+        // --- HELPER DE VE NET VE TAY (DOODLE STYLE) ---
+        // Giam do day mac dinh xuong 2
+        function setDoodleStyle(ctx, color = '#333', width = 2) {
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = width;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.fillStyle = color;
+        }
+
         // --- KHOI TAO GAME ---
         function initGame() {
             score = 0; cameraX = 0; lastGeneratedX = 0;
             updateScoreUI();
 
-            player = {
-                x: 100, y: 200, width: 30, height: 45,
+            player = { 
+                x: 100, y: 200, width: 30, height: 45, 
                 velX: 0, velY: 0, speed: 5, jumpForce: 11,
                 grounded: false, isDucking: false, canDoubleJump: true,
                 isClimbing: false, isZipping: false,
-                frameCount: 0, dir: -1
-             };
+                frameCount: 0, dir: -1 
+            };
 
             platforms = [{ x: 0, y: 350, width: 800, height: 50, type: 'ground' }];
             enemies = []; particles = []; vines = []; ziplines = []; 
-            
             clouds = [];
+            
+            // May bay cham hon
             for(let i=0; i<6; i++) {
-                clouds.push({ x: Math.random() * canvas.width, y: Math.random() * 150 + 20, speed: 0.2 + Math.random() * 0.3, size: 30 + Math.random() * 30 });
+                clouds.push({ 
+                    x: Math.random() * canvas.width, 
+                    y: Math.random() * 150 + 20, 
+                    speed: 0.05 + Math.random() * 0.1, // SPEED REDUCED
+                    size: 30 + Math.random() * 30 
+                });
             }
 
             lastGeneratedX = 800;
             for(let i=0; i<8; i++) spawnNextChunk();
             
             keys = {};
-            activeTouches = {}; 
+            activeTouches = {};
         }
 
         function startGame() {
@@ -350,10 +373,10 @@
                 const chainWidth = 350 + Math.random() * 150;
                 platforms.push({ x: nextX, y: 300, width: 60, height: 30, type: 'platform' });
                 platforms.push({ 
-                     x: nextX + 60, y: 280, width: chainWidth, height: 20, 
-                     type: 'chain_conveyor', bladeOffset: 0, 
-                     bladeSpeed: 0.8 + Math.random() * 0.4 
-                 });
+                      x: nextX + 60, y: 280, width: chainWidth, height: 20, 
+                      type: 'chain_conveyor', bladeOffset: 0, 
+                      bladeSpeed: 0.8 + Math.random() * 0.4 
+                  });
                 platforms.push({ x: nextX + 60 + chainWidth, y: 300, width: 120, height: 30, type: 'platform' });
                 lastGeneratedX = nextX + chainWidth + 180;
             } else if (rand < 0.4) {
@@ -368,25 +391,25 @@
                 
                 // --- HAM GACH BAT BUOC CHUI ---
                 if (Math.random() < 0.4 && width > 160) {
-                    platforms.push({ 
-                         x: nextX + width/2 - 40, 
-                         y: nextY - 45, 
-                         width: 80, 
-                         height: 45, 
-                         type: 'arch' 
-                     });
+                    platforms.push({
+                        x: nextX + width/2 - 40,
+                        y: nextY - 45,
+                        width: 80,
+                        height: 45,
+                        type: 'arch'
+                    });
                 } else {
                     let eRand = Math.random();
                     if (eRand < 0.2) { enemies.push({ type: 'bird', x: nextX + width + 200, y: nextY - 80 - Math.random() * 60, width: 40, height: 30, speed: 1.5, dir: -1, hp: 1 }); }
                     else if (eRand < 0.4) { enemies.push({ type: 'worm', x: nextX + 30, y: nextY - 20, width: 40, height: 20, speed: 0.8, dir: 1, startX: nextX, endX: nextX + width, hp: 1 }); }
                     else if (eRand < 0.6) { enemies.push({ type: 'bug', x: nextX + 80, y: nextY - 40, width: 50, height: 40, speed: 1, dir: 1, startX: nextX, endX: nextX + width, hp: 2 }); }
                     else if (eRand < 0.85) { 
-                        // --- THEM ECH XANH ---
-                        enemies.push({ 
-                            type: 'frog', x: nextX + width/2 - 20, y: nextY - 35, width: 40, height: 35, 
-                            hp: 1, dir: -1, tongueState: 'idle', tongueLen: 0, timer: 0 
-                        }); 
-                    }
+                         // --- THEM ECH XANH ---
+                         enemies.push({ 
+                             type: 'frog', x: nextX + width/2 - 20, y: nextY - 35, width: 40, height: 35,
+                             hp: 1, dir: -1, tongueState: 'idle', tongueLen: 0, timer: 0 
+                         });
+                     }
                     else { enemies.push({ type: 'spikes', x: nextX + 110, y: nextY - 45, width: 40, height: 45 }); }
                 }
                 lastGeneratedX = nextX + width;
@@ -396,7 +419,13 @@
         function update() {
             if (gameState !== 'PLAYING') return;
 
-            clouds.forEach(c => { c.x -= c.speed; if (c.x + c.size * 2 < 0) { c.x = canvas.width + 50; c.y = Math.random() * 150 + 20; } });
+            clouds.forEach(c => { 
+                c.x -= c.speed; 
+                if (c.x + c.size * 2 < 0) { 
+                    c.x = canvas.width + 50; 
+                    c.y = Math.random() * 150 + 20; 
+                } 
+            });
 
             let currentDist = (player.x - 100) / 20;
             if (currentDist > score) score = currentDist;
@@ -404,7 +433,7 @@
 
             let onVine = null;
             for (let v of vines) {
-                if (player.x + player.width > v.x - 15 && player.x < v.x + 15 &&
+                if (player.x + player.width > v.x - 15 && player.x < v.x + 15 && 
                     player.y + player.height > v.y && player.y < v.y + v.height) {
                     onVine = v; break;
                 }
@@ -431,7 +460,7 @@
                 }
             } else if (player.isZipping) {
                 player.velY = 0; player.x += 3; player.dir = 1;
-                 let fz = false;
+                let fz = false;
                 for (let z of ziplines) {
                     if (player.x >= z.x1 && player.x <= z.x2) {
                         let t = (player.x - z.x1) / (z.x2 - z.x1);
@@ -458,7 +487,7 @@
                     keys['ArrowUp'] = keys['KeyW'] = keys['Space'] = false;
                 } else if ((keys['ArrowUp'] || keys['KeyW'] || keys['Space']) && player.canDoubleJump) {
                     player.velY = -player.jumpForce * 0.8; player.canDoubleJump = false;
-                    createParticles(player.x + player.width/2, player.y + player.height, '#fff', 5);
+                    createParticles(player.x + player.width/2, player.y + player.height, '#333', 5);
                     keys['ArrowUp'] = keys['KeyW'] = keys['Space'] = false;
                 }
                 player.velY += 0.5; player.x += player.velX; player.y += player.velY;
@@ -502,26 +531,23 @@
                         if (wc < Math.PI) e.x += e.speed * e.dir * 1.5;
                     } else if (e.type === 'frog') {
                         // --- LOGIC ECH XANH ---
-                        if (player.x < e.x) e.dir = -1; else e.dir = 1; // Luon nhin ve phia nguoi choi
+                        if (player.x < e.x) e.dir = -1; else e.dir = 1; 
 
                         if (e.tongueState === 'idle') {
-                            // Phong luoi ngau nhien (GIAM TAN SUAT XUONG 0.3%)
-                            if (Math.random() < 0.003) { 
-                                e.tongueState = 'shooting';
+                            if (Math.random() < 0.003) {
+                                 e.tongueState = 'shooting';
                             }
                         } else if (e.tongueState === 'shooting') {
                             e.tongueLen += 15;
-                            // GIAM DO DAI LUOI XUONG 90 (50%)
                             if (e.tongueLen > 90) e.tongueState = 'retracting';
                             
                             // Check va cham voi luoi
-                            // Luoi la hinh chu nhat tu mieng ech
                             let tX = (e.dir === 1) ? e.x + 30 : e.x + 10 - e.tongueLen;
                             let tY = e.y + 15;
                             let tW = e.tongueLen;
                             let tH = 8;
                             
-                            if (player.x < tX + tW && player.x + player.width > tX &&
+                            if (player.x < tX + tW && player.x + player.width > tX && 
                                 player.y < tY + tH && player.y + player.height > tY) {
                                 endGame();
                             }
@@ -543,15 +569,15 @@
                     const playerFeet = player.y + player.height;
                     const enemyMiddle = e.y + e.height * 0.7;
                     
-                     if (player.velY > 0 && playerFeet <= enemyMiddle + 15 && e.type !== 'spikes' && e.type !== 'bird') {
+                    if (player.velY > 0 && playerFeet <= enemyMiddle + 15 && e.type !== 'spikes' && e.type !== 'bird') {
                         // Hieu ung tung bui khi giam quai
-                        createParticles(e.x + e.width/2, e.y + e.height, '#8d6e63', 12); 
+                        createParticles(e.x + e.width/2, e.y + e.height, '#333', 12);
                         
                         if (e.type === 'bug' && e.hp > 1) {
-                             e.hp--; player.velY = -player.jumpForce * 0.7; createParticles(e.x + 25, e.y, 'white', 5);
-                         } else {
+                             e.hp--; player.velY = -player.jumpForce * 0.7; createParticles(e.x + 25, e.y, '#333', 5);
+                        } else {
                              enemies.splice(i, 1); player.velY = -player.jumpForce * 0.7;
-                         }
+                        }
                     } else { endGame(); }
                 }
             }
@@ -580,8 +606,27 @@
 
         function createParticles(x, y, color, count) { for (let i = 0; i < count; i++) { particles.push({ x, y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, alpha: 1, color }); } }
 
+        // --- HAM VE GACH CHEO (HATCHING) ---
+        function drawHatching(ctx, x, y, w, h, spacing = 10) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.rect(x, y, w, h);
+            ctx.clip();
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            for (let i = x - h; i < x + w; i += spacing) {
+                ctx.beginPath();
+                ctx.moveTo(i, y + h);
+                ctx.lineTo(i + h, y);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
         function drawEnemy(ctx, e, frameCount) {
             ctx.save();
+            setDoodleStyle(ctx);
+
             if (e.type === 'worm') {
                 const wc = (frameCount * 0.1) % (Math.PI * 2);
                 const ah = Math.max(0, Math.sin(wc) * 15);
@@ -591,158 +636,257 @@
                     let dx = e.x + (i * bl / 4); let dy = e.y + 15;
                     if (i > 0 && i < 4) dy -= ah * (1 - Math.abs(2-i)*0.5);
                     
-                    ctx.fillStyle = '#7cfc00'; 
-                    ctx.strokeStyle = '#32cd32';
-
+                    ctx.fillStyle = '#ccff90'; // Xanh nhat
                     ctx.beginPath(); ctx.arc(dx, dy, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
                     
                     ctx.fillStyle = 'black';
                     ctx.beginPath(); ctx.arc(dx, dy, 1.5, 0, Math.PI * 2); ctx.fill();
 
                     if ((e.dir > 0 && i === 4) || (e.dir < 0 && i === 0)) {
-                        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(dx + 2*e.dir, dy - 2, 2, 0, Math.PI * 2); ctx.fill();
+                        ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(dx + 2*e.dir, dy - 2, 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
                         ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(dx + 3*e.dir, dy - 2, 1, 0, Math.PI * 2); ctx.fill();
                     }
                 }
             } else if (e.type === 'bug') {
                 const mo = Math.abs(Math.sin(frameCount * 0.15)) * 0.7;
-                ctx.fillStyle = '#9c27b0'; ctx.beginPath(); ctx.moveTo(e.x + 25, e.y + 20);
+                ctx.fillStyle = '#e1bee7'; // Tim nhat
+                ctx.beginPath(); ctx.moveTo(e.x + 25, e.y + 20);
                 let sa = (e.dir > 0) ? mo : Math.PI + mo;
                 let ea = (e.dir > 0) ? Math.PI * 2 - mo : Math.PI - mo;
-                ctx.arc(e.x + 25, e.y + 20, 20, sa, ea); ctx.closePath(); ctx.fill();
-                ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(e.x + 25 + 5 * e.dir, e.y + 5, 7, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#6a1b9a'; ctx.beginPath(); ctx.arc(e.x + 25 + 7 * e.dir, e.y + 5, 3, 0, Math.PI * 2); ctx.fill();
+                ctx.arc(e.x + 25, e.y + 20, 20, sa, ea); 
+                ctx.closePath(); 
+                ctx.fill(); ctx.stroke();
+
+                ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(e.x + 25 + 5 * e.dir, e.y + 5, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(e.x + 25 + 7 * e.dir, e.y + 5, 3, 0, Math.PI * 2); ctx.fill();
+
                 if (mo > 0.1) {
                     ctx.fillStyle = 'white';
                     for(let i=0; i<2; i++) {
                         let ta = (e.dir > 0) ? (i === 0 ? mo : -mo) : (i === 0 ? Math.PI - mo : Math.PI + mo);
                         let tx = e.x + 25 + Math.cos(ta) * 18; let ty = e.y + 20 + Math.sin(ta) * 18;
-                        ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(tx - 6 * e.dir, ty - 4); ctx.lineTo(tx - 6 * e.dir, ty + 4); ctx.fill();
+                        ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(tx - 6 * e.dir, ty - 4); ctx.lineTo(tx - 6 * e.dir, ty + 4); ctx.fill(); ctx.stroke();
                     }
                 }
-                if (e.hp > 1) { ctx.fillStyle = 'lime'; ctx.fillRect(e.x + 5, e.y - 15, 40, 4); }
+                if (e.hp > 1) { ctx.fillStyle = '#333'; ctx.fillRect(e.x + 5, e.y - 15, 40, 4); }
             } else if (e.type === 'bird') {
                 ctx.save();
                 ctx.translate(e.x + 20, e.y + 15);
                 ctx.scale(e.dir, 1);
-                ctx.fillStyle = '#00bfff'; ctx.beginPath(); ctx.ellipse(0, 0, 18, 12, 0, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#6a1b9a'; ctx.beginPath(); ctx.arc(12, -3, 2, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#ff8c00'; ctx.beginPath(); ctx.moveTo(18, -3); ctx.lineTo(28, 0); ctx.lineTo(18, 3); ctx.fill();
-                ctx.fillStyle = '#1e90ff'; 
-                let wa = Math.sin(frameCount * 0.1) * 20; 
-                ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-25, -wa); ctx.lineTo(-10, 10); ctx.fill();
+                
+                ctx.fillStyle = '#81d4fa'; // Xanh duong nhat
+                ctx.beginPath(); ctx.ellipse(0, 0, 18, 12, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                
+                ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(12, -3, 2, 0, Math.PI * 2); ctx.fill();
+                
+                ctx.fillStyle = '#ffcc80'; 
+                ctx.beginPath(); ctx.moveTo(18, -3); ctx.lineTo(28, 0); ctx.lineTo(18, 3); ctx.fill(); ctx.stroke();
+                
+                ctx.fillStyle = '#b3e5fc';
+                let wa = Math.sin(frameCount * 0.1) * 20;
+                ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-25, -wa); ctx.lineTo(-10, 10); ctx.fill(); ctx.stroke();
                 ctx.restore();
             } else if (e.type === 'frog') {
                 ctx.translate(e.x + 20, e.y + 17);
                 ctx.scale(e.dir, 1);
                 let breathe = 1 + Math.sin(frameCount * 0.1) * 0.05;
                 ctx.scale(1, breathe);
-                ctx.fillStyle = '#33cc33'; ctx.beginPath(); ctx.ellipse(0, 0, 20, 15, 0, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#228b22'; ctx.beginPath(); ctx.ellipse(-15, 5, 10, 8, 0.5, 0, Math.PI * 2); ctx.fill();
+                
+                ctx.fillStyle = '#a5d6a7'; // Xanh la nhat
+                ctx.beginPath(); ctx.ellipse(0, 0, 20, 15, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                
+                ctx.beginPath(); ctx.ellipse(-15, 5, 10, 8, 0.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                
                 let isBlinking = (frameCount % 120 < 10);
                 if (isBlinking) {
-                    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
                     ctx.beginPath(); ctx.moveTo(5, -12); ctx.lineTo(15, -12); ctx.stroke();
                 } else {
-                    ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(10, -12, 6, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(10, -12, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
                     ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(12, -12, 2, 0, Math.PI * 2); ctx.fill();
                 }
+                
                 if (e.tongueLen > 0) {
-                    ctx.fillStyle = '#ff0000'; ctx.beginPath(); ctx.rect(10, 0, e.tongueLen, 6); ctx.fill();
-                    ctx.beginPath(); ctx.arc(10 + e.tongueLen, 3, 3, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = '#ef9a9a';
+                    ctx.beginPath(); ctx.rect(10, 0, e.tongueLen, 6); ctx.fill(); ctx.stroke();
+                    ctx.beginPath(); ctx.arc(10 + e.tongueLen, 3, 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
                 }
             } else if (e.type === 'spikes') {
-                ctx.fillStyle = '#2e7d32'; ctx.beginPath(); ctx.rect(e.x + 15, e.y + 5, 10, 40); ctx.fill();
-                ctx.strokeStyle = '#2e7d32'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+                ctx.fillStyle = '#b0bec5';
+                ctx.beginPath(); ctx.rect(e.x + 15, e.y + 5, 10, 40); ctx.fill(); ctx.stroke();
+                
+                ctx.lineCap = 'round';
                 ctx.beginPath(); ctx.moveTo(e.x + 15, e.y + 25); ctx.lineTo(e.x + 5, e.y + 25); ctx.lineTo(e.x + 5, e.y + 15); ctx.stroke();
                 ctx.beginPath(); ctx.moveTo(e.x + 25, e.y + 15); ctx.lineTo(e.x + 35, e.y + 15); ctx.lineTo(e.x + 35, e.y + 5); ctx.stroke();
-                ctx.fillStyle = '#1b5e20'; for(let k=0; k<5; k++) { ctx.fillRect(e.x + 18, e.y + 5 + k*8, 2, 2); }
+                
+                ctx.fillStyle = '#333'; for(let k=0; k<5; k++) { ctx.fillRect(e.x + 18, e.y + 5 + k*8, 2, 2); }
             }
             ctx.restore();
         }
 
         function drawPlayer(ctx, p) {
             ctx.save(); ctx.translate(p.x + p.width/2, p.y + 12); ctx.scale(-p.dir, 1);
+            setDoodleStyle(ctx);
+
             let br = Math.sin(p.frameCount * 0.1) * 1.5;
             if (p.velX !== 0 || !p.grounded || p.isClimbing || p.isZipping) br = 0;
             const bodyH = p.isDucking ? 15 : 25;
+
+            // Tay
             for(let side of [-1, 1]) {
                 ctx.save(); let lx = side * 7; let ly = bodyH + 2;
                 if (p.isZipping) { lx += Math.sin(p.frameCount * 0.1) * 8; ly -= 2; }
                 else if (p.velX !== 0) { lx += Math.sin(p.frameCount * 0.2 + (side===1?0:Math.PI)) * 8; ly += Math.abs(Math.cos(p.frameCount * 0.2 + (side===1?0:Math.PI))) * 4; }
-                ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(lx, ly, 6, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+                ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(lx, ly, 6, 0, Math.PI * 2); ctx.fill(); ctx.restore();
             }
+
+            // Body
             if (p.isZipping || p.isClimbing) {
-                const hc = Math.sin(p.frameCount * 0.15); ctx.strokeStyle = '#3399ff'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+                const hc = Math.sin(p.frameCount * 0.15); 
                 for(let side of [-1, 1]) {
                     let hY = -25 + (side===1 ? (hc < 0 ? -hc * 15 : 0) : (hc > 0 ? hc * 15 : 0));
                     ctx.beginPath(); ctx.moveTo(side*5, 5); ctx.lineTo(side*12, hY); ctx.stroke();
-                    ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(side*12, hY, 5, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = '#ffe0b2'; ctx.beginPath(); ctx.arc(side*12, hY, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
                 }
             } else {
                 let aa = (p.velX !== 0 && p.grounded) ? Math.sin(p.frameCount * 0.2) * 0.6 : 0;
                 ctx.save(); ctx.translate(0, 5);
-                 ctx.save(); ctx.rotate(-aa); ctx.fillStyle = '#2288ee'; ctx.fillRect(-14, 0, 6, 18); ctx.restore();
-                ctx.save(); ctx.rotate(aa); ctx.fillStyle = '#3399ff'; ctx.fillRect(8, 0, 6, 18); ctx.restore();
+                
+                // Chan trai
+                ctx.save(); ctx.rotate(-aa); 
+                ctx.fillStyle = '#90caf9'; ctx.beginPath(); ctx.rect(-14, 0, 6, 18); ctx.fill(); ctx.stroke();
+                ctx.restore();
+                
+                // Chan phai
+                ctx.save(); ctx.rotate(aa); 
+                ctx.fillStyle = '#64b5f6'; ctx.beginPath(); ctx.rect(8, 0, 6, 18); ctx.fill(); ctx.stroke();
+                ctx.restore();
                 ctx.restore();
             }
-            ctx.fillStyle = '#3399ff'; ctx.fillRect(-10, br, 20, bodyH);
-            ctx.translate(0, br); ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(0, -2, 12, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(-4, -4, 2, 0, Math.PI * 2); ctx.arc(-8, -4, 2, 0, Math.PI * 2); ctx.fill();
-            ctx.fillStyle = '#ff4d4d'; ctx.beginPath(); ctx.arc(0, -7, 15, Math.PI, 0); ctx.fill(); ctx.fillRect(-15, -10, 30, 4);
+
+            // Than
+            ctx.fillStyle = '#42a5f5'; // Ao xanh
+            ctx.beginPath(); ctx.rect(-10, br, 20, bodyH); ctx.fill(); ctx.stroke();
+
+            // Dau
+            ctx.translate(0, br); 
+            ctx.fillStyle = '#ffe0b2'; // Da nguoi
+            ctx.beginPath(); ctx.arc(0, -2, 12, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+            // Mat
+            ctx.fillStyle = '#333'; 
+            ctx.beginPath(); ctx.arc(-4, -4, 2, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(-8, -4, 2, 0, Math.PI * 2); ctx.fill();
+
+            // Mu
+            ctx.fillStyle = '#ef5350'; 
+            ctx.beginPath(); ctx.arc(0, -7, 15, Math.PI, 0); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.rect(-15, -10, 30, 4); ctx.fill(); ctx.stroke();
+
             ctx.restore();
         }
 
         function drawBrickStructure(ctx, x, y, w, h) {
             ctx.save();
-            ctx.fillStyle = '#b71c1c'; 
+            setDoodleStyle(ctx);
+            
+            ctx.fillStyle = '#fff'; // Nen trang
             ctx.fillRect(x, y, w, h);
-            ctx.strokeStyle = '#ffffff'; 
+            drawHatching(ctx, x, y, w, h); // Gach cheo
+            ctx.strokeRect(x, y, w, h); // Vien den
+
+            ctx.strokeStyle = '#333';
             ctx.lineWidth = 1;
-            ctx.globalAlpha = 0.4;
             const bW = 20; const bH = 10;
+            
+            ctx.beginPath();
             for(let j = 0; j < h; j += bH) {
-                ctx.beginPath();
-                ctx.moveTo(x, y + j);
-                ctx.lineTo(x + w, y + j);
-                ctx.stroke();
+                ctx.moveTo(x, y + j); ctx.lineTo(x + w, y + j);
                 let offset = (j / bH) % 2 === 0 ? 0 : bW / 2;
                 for(let i = offset; i < w; i += bW) {
-                    ctx.beginPath();
-                    ctx.moveTo(x + i, y + j);
-                    ctx.lineTo(x + i, y + j + bH);
-                    ctx.stroke();
+                    if (x+i < x+w) {
+                         ctx.moveTo(x + i, y + j); ctx.lineTo(x + i, y + j + bH);
+                    }
                 }
             }
+            ctx.stroke();
             ctx.restore();
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#FFD700'; ctx.beginPath(); ctx.arc(700, 60, 25, 0, Math.PI * 2); ctx.fill();
-            clouds.forEach(c => { ctx.fillStyle = 'white'; ctx.globalAlpha = 0.8; ctx.beginPath(); ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; });
+            setDoodleStyle(ctx);
+
+            // SUN
+            ctx.fillStyle = '#fff176'; 
+            ctx.beginPath(); ctx.arc(700, 60, 25, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            // Tia nang
+            ctx.beginPath();
+            for(let i=0; i<8; i++) {
+                let ang = (i/8)*Math.PI*2;
+                ctx.moveTo(700 + Math.cos(ang)*30, 60 + Math.sin(ang)*30);
+                ctx.lineTo(700 + Math.cos(ang)*45, 60 + Math.sin(ang)*45);
+            }
+            ctx.stroke();
+
+            // CLOUDS (VE LIEN NET - KHONG VIEN - TRONG SUOT NHE)
+            ctx.save();
+            ctx.globalAlpha = 0.6; // Them do trong suot cho may
+            clouds.forEach(c => { 
+                ctx.fillStyle = '#fff'; 
+                ctx.beginPath(); ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2); ctx.fill(); 
+                // da xoa stroke() de bo vien
+            });
+            ctx.restore();
+
             ctx.save(); ctx.translate(-cameraX, 0);
             
+            // VINES
             vines.forEach(v => {
-                ctx.save(); ctx.strokeStyle = '#228B22'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(v.x, v.y); ctx.lineTo(v.x, v.y + v.height); ctx.stroke();
-                ctx.fillStyle = '#32CD32'; for(let i=0; i<v.height; i+=20) { ctx.beginPath(); ctx.arc(v.x + 5, v.y + i, 4, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(v.x - 5, v.y + i + 10, 4, 0, Math.PI * 2); ctx.fill(); }
+                ctx.save(); 
+                ctx.strokeStyle = '#333'; ctx.lineWidth = 2; // Giam do day
+                ctx.beginPath(); 
+                // Ve day leo uon luon
+                ctx.moveTo(v.x, v.y);
+                for(let i=0; i<=v.height; i+=20) {
+                     ctx.lineTo(v.x + Math.sin(i*0.1)*5, v.y + i);
+                }
+                ctx.stroke();
+                
+                ctx.fillStyle = '#a5d6a7'; 
+                for(let i=0; i<v.height; i+=30) { 
+                    ctx.beginPath(); ctx.arc(v.x + 5, v.y + i, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                    ctx.beginPath(); ctx.arc(v.x - 5, v.y + i + 15, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                }
                 ctx.restore();
             });
             
+            // ZIPLINES
             ziplines.forEach(z => {
-                ctx.save(); ctx.strokeStyle = '#777'; ctx.lineWidth = 3; ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.moveTo(z.x1, z.y1); ctx.lineTo(z.x2, z.y2); ctx.stroke();
-                ctx.setLineDash([]); ctx.fillStyle = '#555'; ctx.fillRect(z.x1-5, z.y1-10, 10, 20); ctx.fillRect(z.x2-5, z.y2-10, 10, 20); ctx.restore();
+                ctx.save(); 
+                ctx.strokeStyle = '#333'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]); 
+                ctx.beginPath(); ctx.moveTo(z.x1, z.y1); ctx.lineTo(z.x2, z.y2); ctx.stroke();
+                ctx.setLineDash([]); 
+                ctx.fillStyle = '#fff'; 
+                ctx.fillRect(z.x1-5, z.y1-10, 10, 20); ctx.strokeRect(z.x1-5, z.y1-10, 10, 20);
+                ctx.fillRect(z.x2-5, z.y2-10, 10, 20); ctx.strokeRect(z.x2-5, z.y2-10, 10, 20);
+                ctx.restore();
             });
 
             platforms.forEach(p => {
                 if (p.type === 'chain_conveyor') {
-                    ctx.save(); ctx.strokeStyle = '#555'; ctx.lineWidth = 6; ctx.beginPath(); ctx.moveTo(p.x, p.y + 10); ctx.lineTo(p.x + p.width, p.y + 10); ctx.stroke();
-                    ctx.fillStyle = '#777'; for(let x = p.x; x < p.x + p.width; x += 15) { ctx.beginPath(); ctx.arc(x, p.y + 10, 4, 0, Math.PI * 2); ctx.fill(); }
-                    ctx.fillStyle = '#ff1744'; for (let i = -1; i < p.width / 100 + 1; i++) {
+                    ctx.save();
+                    ctx.strokeStyle = '#333'; ctx.lineWidth = 2; // Giam do day
+                    ctx.beginPath(); ctx.moveTo(p.x, p.y + 10); ctx.lineTo(p.x + p.width, p.y + 10); ctx.stroke();
+                    
+                    ctx.fillStyle = '#fff'; 
+                    for(let x = p.x; x < p.x + p.width; x += 15) { ctx.beginPath(); ctx.arc(x, p.y + 10, 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
+                    
+                    ctx.fillStyle = '#ff8a80'; 
+                    for (let i = -1; i < p.width / 100 + 1; i++) {
                         let bx = p.x + (i * 200) + p.bladeOffset; if (bx > p.x && bx < p.x + p.width) {
                             ctx.save(); ctx.translate(bx, p.y + 5); ctx.rotate(Date.now() / 100); ctx.beginPath();
-                            for (let a = 0; a < 8; a++) { let ang = (a/8)*Math.PI*2; ctx.lineTo(Math.cos(ang)*15, Math.sin(ang)*15); ctx.lineTo(Math.cos(ang+0.2)*8, Math.sin(ang+0.2)*8); }
-                            ctx.closePath(); ctx.fill(); ctx.strokeStyle = 'white'; ctx.lineWidth = 1; ctx.stroke(); ctx.restore();
+                            for (let a = 0; a < 4; a++) { let ang = (a/4)*Math.PI*2; ctx.lineTo(Math.cos(ang)*15, Math.sin(ang)*15); ctx.lineTo(Math.cos(ang+0.5)*5, Math.sin(ang+0.5)*5); }
+                            ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
                         }
                     } ctx.restore();
                 } else if (p.type === 'arch') {
@@ -750,39 +894,67 @@
                     drawBrickStructure(ctx, p.x + p.width - 12, p.y, 12, p.height);
                     drawBrickStructure(ctx, p.x, p.y - 15, p.width, 15);
                     
+                    // KING KONG (Ve tay)
                     ctx.save();
                     const kX = p.x + p.width / 2;
                     const kY = p.y - 15;
                     const breathe = Math.sin(Date.now() / 200) * 4;
                     
-                    ctx.fillStyle = '#3e2723';
-                    ctx.beginPath(); ctx.ellipse(kX - 25, kY - 4, 15, 6, 0, 0, Math.PI * 2); ctx.fill();
-                    ctx.beginPath(); ctx.ellipse(kX + 25, kY - 4, 15, 6, 0, 0, Math.PI * 2); ctx.fill();
-                    ctx.beginPath(); ctx.ellipse(kX, kY - 35, 55 + breathe, 45 + breathe/2, 0, 0, Math.PI * 2); ctx.fill();
-                    ctx.fillStyle = '#5d4037';
-                    ctx.beginPath(); ctx.ellipse(kX, kY - 30, 35 + breathe * 0.8, 28 + breathe * 0.5, 0, 0, Math.PI * 2); ctx.fill();
-                    ctx.fillStyle = '#3e2723';
-                    ctx.beginPath(); ctx.ellipse(kX - 58 - breathe/2, kY - 25, 20, 35, 0.2, 0, Math.PI * 2); ctx.fill();
-                    ctx.beginPath(); ctx.ellipse(kX + 58 + breathe/2, kY - 25, 20, 35, -0.2, 0, Math.PI * 2); ctx.fill();
-                    ctx.beginPath(); ctx.ellipse(kX, kY - 78, 32, 26, 0, 0, Math.PI * 2); ctx.fill();
-                    ctx.beginPath(); ctx.arc(kX - 30, kY - 84, 9, 0, Math.PI*2); ctx.fill();
-                    ctx.beginPath(); ctx.arc(kX + 30, kY - 84, 9, 0, Math.PI*2); ctx.fill();
+                    // Body
+                    ctx.fillStyle = '#8d6e63'; // Nau
+                    ctx.beginPath(); ctx.ellipse(kX, kY - 35, 55 + breathe, 45 + breathe/2, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                    
+                    // Chest
+                    ctx.fillStyle = '#d7ccc8'; 
+                    ctx.beginPath(); ctx.ellipse(kX, kY - 30, 35 + breathe * 0.8, 28 + breathe * 0.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+                    // Arms
                     ctx.fillStyle = '#8d6e63';
-                    ctx.beginPath(); ctx.ellipse(kX, kY - 74, 24, 16, 0, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.ellipse(kX - 58 - breathe/2, kY - 25, 20, 35, 0.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                    ctx.beginPath(); ctx.ellipse(kX + 58 + breathe/2, kY - 25, 20, 35, -0.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+                    // Head
+                    ctx.fillStyle = '#8d6e63';
+                    ctx.beginPath(); ctx.ellipse(kX, kY - 78, 32, 26, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                    
+                    // Ears
+                    ctx.beginPath(); ctx.arc(kX - 30, kY - 84, 9, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                    ctx.beginPath(); ctx.arc(kX + 30, kY - 84, 9, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+
+                    // Face
+                    ctx.fillStyle = '#d7ccc8';
+                    ctx.beginPath(); ctx.ellipse(kX, kY - 74, 24, 16, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+                    // Eyes
                     ctx.fillStyle = 'white';
-                    ctx.beginPath(); ctx.arc(kX - 10, kY - 86, 6, 0, Math.PI*2); ctx.fill();
-                    ctx.beginPath(); ctx.arc(kX + 10, kY - 86, 6, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(kX - 10, kY - 86, 6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+                    ctx.beginPath(); ctx.arc(kX + 10, kY - 86, 6, 0, Math.PI*2); ctx.fill(); ctx.stroke();
                     ctx.fillStyle = 'black';
-                    ctx.beginPath(); ctx.arc(kX - 10, kY - 86, 3, 0, Math.PI*2); ctx.fill();
-                    ctx.beginPath(); ctx.arc(kX + 10, kY - 86, 3, 0, Math.PI*2); ctx.fill();
-                    ctx.beginPath(); ctx.arc(kX - 4, kY - 72, 2, 0, Math.PI*2); ctx.fill();
-                    ctx.beginPath(); ctx.arc(kX + 4, kY - 72, 2, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(kX - 10, kY - 86, 2, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(kX + 10, kY - 86, 2, 0, Math.PI*2); ctx.fill();
+
+                    // Nostrils
+                    ctx.beginPath(); ctx.arc(kX - 4, kY - 72, 1, 0, Math.PI*2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(kX + 4, kY - 72, 1, 0, Math.PI*2); ctx.fill();
+                    
                     ctx.restore();
-                } else { ctx.fillStyle = p.color || '#8d6e63'; ctx.fillRect(p.x, p.y, p.width, p.height); }
+                } else { 
+                    // Ground / Platform binh thuong
+                    ctx.save();
+                    ctx.fillStyle = '#fff';
+                    ctx.beginPath(); ctx.rect(p.x, p.y, p.width, p.height); ctx.fill();
+                    // Ve gach cheo
+                    drawHatching(ctx, p.x, p.y, p.width, p.height);
+                    ctx.strokeRect(p.x, p.y, p.width, p.height);
+                    ctx.restore();
+                }
             });
 
             for (let e of enemies) drawEnemy(ctx, e, player.frameCount);
-            particles.forEach(p => { ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill(); });
+            particles.forEach(p => { 
+                ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color; 
+                ctx.beginPath(); ctx.rect(p.x, p.y, 4, 4); ctx.fill(); 
+            });
             ctx.globalAlpha = 1; drawPlayer(ctx, player);
             ctx.restore();
         }
