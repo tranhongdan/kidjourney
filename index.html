@@ -761,11 +761,14 @@
                         }
                     } else if (p.type === 'arch') {
                         if (player.x + player.width > p.x && player.x < p.x + p.width) {
-                            if (!player.isDucking || player.y < p.y - 2) {
-                                if (player.invincibleTimer <= 0) { // Tang hinh bo qua
-                                    endGame();
-                                    showMessage("Hit the roof!");
-                                    return;
+                            // Fix: Cho phep nhay qua dau King Kong neu du do cao (vi du dung high jump)
+                            if (player.y + player.height > p.y - 115) {
+                                if (!player.isDucking || player.y < p.y - 2) {
+                                    if (player.invincibleTimer <= 0) { // Tang hinh bo qua
+                                        endGame();
+                                        showMessage("Hit the roof!");
+                                        return;
+                                    }
                                 }
                             }
                         }
