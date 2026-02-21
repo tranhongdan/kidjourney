@@ -270,6 +270,93 @@
         let lastGeneratedX = 0;
         let activeTouches = {}; 
 
+        // --- HE THONG AM THANH WEB AUDIO API ---
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Ham tao am thanh co ban
+        function playTone(freq, type, duration, vol=0.1) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        // Am thanh nhay
+        function playJumpSound() {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        // Am thanh an vat pham
+        function playItemSound() {
+            if (!audioCtx) return;
+            playTone(800, 'sine', 0.1, 0.1);
+            setTimeout(() => playTone(1200, 'sine', 0.2, 0.1), 100);
+        }
+
+        // Am thanh ban sung
+        function playShootSound() {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        // Am thanh thua game
+        function playGameOverSound() {
+            if (!audioCtx) return;
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(300, t);
+            osc.frequency.setValueAtTime(250, t + 0.2);
+            osc.frequency.setValueAtTime(200, t + 0.4);
+            osc.frequency.exponentialRampToValueAtTime(50, t + 1.0);
+            
+            gain.gain.setValueAtTime(0.1, t);
+            gain.gain.linearRampToValueAtTime(0, t + 1.0);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(t + 1.0);
+        }
+
         // --- HELPER DE VE NET VE TAY (DOODLE STYLE) ---
         function setDoodleStyle(ctx, color = '#333', width = 2) {
             ctx.strokeStyle = '#333';
@@ -315,6 +402,7 @@
         }
 
         function startGame() {
+            initAudio(); // Khoi tao am thanh khi user tuong tac
             initGame();
             gameState = 'PLAYING';
             startScreen.classList.remove('active');
@@ -464,6 +552,7 @@
                     else if (it.type === 'star') { player.invincibleTimer = 1200; showMessage("INVINCIBLE!"); }
                     else if (it.type === 'gun') { player.gunAmmo += 30; showMessage("AUTO GUN!"); } 
                     
+                    playItemSound(); // Phat tieng an item
                     createParticles(it.x + 10, it.y + 10, '#fff', 15);
                     items.splice(i, 1);
                 }
@@ -490,6 +579,8 @@
                         vy: (dy/mag) * 10,
                         life: 80
                     });
+                    
+                    playShootSound(); // Phat tieng ban sung
                     createParticles(player.x + player.width/2, player.y + 10, '#f44336', 3);
                     player.gunAmmo--; // Chi tru dan khi ban
                 }
@@ -559,7 +650,11 @@
                 if (keys['ArrowUp']) player.y -= 3;
                 if (keys['ArrowDown']) player.y += 3;
                 if (keys['Space'] || keys['ArrowLeft'] || keys['ArrowRight']) {
-                    player.isClimbing = false; if (keys['Space']) player.velY = -player.jumpForce;
+                    player.isClimbing = false; 
+                    if (keys['Space']) {
+                        player.velY = -player.jumpForce;
+                        playJumpSound(); // Phat tieng nhay tu day leo
+                    }
                 }
             } else if (player.isZipping) {
                 player.velY = 0; player.x += 3; player.dir = 1;
@@ -588,10 +683,12 @@
                 if ((keys['ArrowUp'] || keys['KeyW'] || keys['Space']) && player.grounded) {
                     player.velY = -player.jumpForce; player.grounded = false; player.canDoubleJump = true;
                     keys['ArrowUp'] = keys['KeyW'] = keys['Space'] = false;
+                    playJumpSound(); // Phat tieng nhay
                 } else if ((keys['ArrowUp'] || keys['KeyW'] || keys['Space']) && player.canDoubleJump) {
                     player.velY = -player.jumpForce * 0.8; player.canDoubleJump = false;
                     createParticles(player.x + player.width/2, player.y + player.height, '#333', 5);
                     keys['ArrowUp'] = keys['KeyW'] = keys['Space'] = false;
+                    playJumpSound(); // Phat tieng nhay buoc 2
                 }
                 player.velY += 0.5; player.x += player.velX; player.y += player.velY;
             }
@@ -709,6 +806,8 @@
         }
 
         function endGame() {
+             if (gameState === 'GAMEOVER') return; // Chi play am thanh 1 lan
+             playGameOverSound();
              gameState = 'GAMEOVER';
              gameOverScreen.classList.add('active');
              finalScoreElement.innerText = "Score: " + Math.floor(score) + " | Best: " + Math.floor(bestScore);
@@ -1194,4 +1293,3 @@
     </script>
 </body>
 </html>
-
