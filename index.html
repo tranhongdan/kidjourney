@@ -188,7 +188,6 @@
     </style>
 </head>
 <body>
-
     <div id="orientation-overlay">
         <div style="font-size: 50px;">🔄</div>
         <h2>Please rotate your screen</h2>
@@ -212,7 +211,6 @@
                 </div>
 
                 <button onclick="startGame()">Start Game</button>
-
                 <div class="copyright">
                     Copyright: Trần Hồng Dân<br>
                     Email: tranhongdan@tranphudlk.edu.vn
@@ -387,14 +385,15 @@
             score = 0; cameraX = 0; lastGeneratedX = 0;
             updateScoreUI();
 
-            player = {
-                 x: 100, y: 200, width: 30, height: 45,
-                 velX: 0, velY: 0, speed: 5, baseJumpForce: 11, jumpForce: 11,
-                 grounded: false, isDucking: false, canDoubleJump: true,
-                 isClimbing: false, isZipping: false,
-                 frameCount: 0, dir: -1,
-                 // Timers cho vat pham (1200 frame thay vi 600)
-                 highJumpTimer: 0, invincibleTimer: 0, gunAmmo: 0 
+            player = { 
+                x: 100, y: 200, width: 30, height: 45, 
+                velX: 0, velY: 0, baseSpeed: 5, speed: 5, baseJumpForce: 11, jumpForce: 11, 
+                grounded: false, isDucking: false, canDoubleJump: true, 
+                isClimbing: false, isZipping: false, 
+                frameCount: 0, dir: -1, 
+                // Timers va max timers cho vat pham (hien thi pie chart)
+                highJumpTimer: 0, invincibleTimer: 0, gunTimer: 0, speedTimer: 0,
+                highJumpMax: 1200, invincibleMax: 1200, gunMax: 1200, speedMax: 1200
              };
 
             platforms = [{ x: 0, y: 350, width: 800, height: 50, type: 'ground' }];
@@ -402,12 +401,12 @@
             clouds = [];
             
             for(let i=0; i<6; i++) {
-                clouds.push({
-                     x: Math.random() * canvas.width,
-                     y: Math.random() * 150 + 20,
-                     speed: 0.05 + Math.random() * 0.1,
-                     size: 30 + Math.random() * 30
-                 });
+                clouds.push({ 
+                    x: Math.random() * canvas.width, 
+                    y: Math.random() * 150 + 20, 
+                    speed: 0.05 + Math.random() * 0.1, 
+                    size: 30 + Math.random() * 30 
+                });
             }
 
             lastGeneratedX = 800;
@@ -484,11 +483,11 @@
             if (rand < 0.2) {
                 const chainWidth = 350 + Math.random() * 150;
                 platforms.push({ x: nextX, y: 300, width: 60, height: 30, type: 'platform' });
-                platforms.push({
-                       x: nextX + 60, y: 280, width: chainWidth, height: 20,
-                       type: 'chain_conveyor', bladeOffset: 0,
-                       bladeSpeed: 0.8 + Math.random() * 0.4
-                   });
+                platforms.push({ 
+                      x: nextX + 60, y: 280, width: chainWidth, height: 20, 
+                      type: 'chain_conveyor', bladeOffset: 0, 
+                      bladeSpeed: 0.8 + Math.random() * 0.4 
+                  });
                 platforms.push({ x: nextX + 60 + chainWidth, y: 300, width: 120, height: 30, type: 'platform' });
                 lastGeneratedX = nextX + chainWidth + 180;
             } else if (rand < 0.4) {
@@ -514,12 +513,12 @@
                     if (eRand < 0.2) { enemies.push({ type: 'bird', x: nextX + width + 200, y: nextY - 80 - Math.random() * 60, width: 40, height: 30, speed: 1.5, dir: -1, hp: 1 }); }
                     else if (eRand < 0.4) { enemies.push({ type: 'worm', x: nextX + 30, y: nextY - 20, width: 40, height: 20, speed: 0.8, dir: 1, startX: nextX, endX: nextX + width, hp: 1 }); }
                     else if (eRand < 0.6) { enemies.push({ type: 'bug', x: nextX + 80, y: nextY - 40, width: 50, height: 40, speed: 1, dir: 1, startX: nextX, endX: nextX + width, hp: 2 }); }
-                    else if (eRand < 0.85) {
-                         enemies.push({
-                              type: 'frog', x: nextX + width/2 - 20, y: nextY - 35, width: 40, height: 35,
-                              hp: 1, dir: -1, tongueState: 'idle', tongueLen: 0, timer: 0
-                          });
-                     }
+                    else if (eRand < 0.85) { 
+                        enemies.push({ 
+                             type: 'frog', x: nextX + width/2 - 20, y: nextY - 35, width: 40, height: 35, 
+                             hp: 1, dir: -1, tongueState: 'idle', tongueLen: 0, timer: 0 
+                         }); 
+                    }
                     else { enemies.push({ type: 'spikes', x: nextX + 110, y: nextY - 45, width: 40, height: 45 }); }
                 }
                 lastGeneratedX = nextX + width;
@@ -527,7 +526,8 @@
 
             // --- SPAWN ITEMS TAI VI TRI KHO ---
             if (Math.random() < 0.3) { 
-                let types = ['spring', 'star', 'gun'];
+                // Them vat pham speed va time_x2
+                let types = ['spring', 'star', 'gun', 'speed', 'time_x2'];
                 let type = types[Math.floor(Math.random() * types.length)];
                 let ix, iy;
                 let rPos = Math.random();
@@ -556,7 +556,21 @@
             } else {
                 player.jumpForce = player.baseJumpForce;
             }
-            if (player.invincibleTimer > 0) player.invincibleTimer--;
+
+            if (player.invincibleTimer > 0) {
+                player.invincibleTimer--;
+            }
+
+            if (player.speedTimer > 0) {
+                player.speedTimer--;
+                player.speed = player.baseSpeed * 1.6; // Chay nhanh hon
+            } else {
+                player.speed = player.baseSpeed;
+            }
+
+            if (player.gunTimer > 0) {
+                player.gunTimer--;
+            }
 
             // --- KIEM TRA AN VAT PHAM ---
             for (let i = items.length - 1; i >= 0; i--) {
@@ -564,9 +578,26 @@
                 if (player.x < it.x + it.width && player.x + player.width > it.x &&
                     player.y < it.y + it.height && player.y + player.height > it.y) {
                     
-                    if (it.type === 'spring') { player.highJumpTimer = 1200; showMessage("HIGH JUMP!"); }
-                    else if (it.type === 'star') { player.invincibleTimer = 1200; showMessage("INVINCIBLE!"); }
-                    else if (it.type === 'gun') { player.gunAmmo += 30; showMessage("AUTO GUN!"); } 
+                    if (it.type === 'spring') { 
+                        player.highJumpTimer = 1200; player.highJumpMax = 1200; showMessage("HIGH JUMP!"); 
+                    }
+                    else if (it.type === 'star') { 
+                        player.invincibleTimer = 1200; player.invincibleMax = 1200; showMessage("INVINCIBLE!"); 
+                    }
+                    else if (it.type === 'gun') { 
+                        player.gunTimer = 1200; player.gunMax = 1200; showMessage("AUTO GUN!"); 
+                    }
+                    else if (it.type === 'speed') { 
+                        player.speedTimer = 1200; player.speedMax = 1200; showMessage("SPEED UP!"); 
+                    }
+                    else if (it.type === 'time_x2') {
+                        // Nhan doi thoi gian vat pham dang hoat dong va tang limit max de hien thi pie chart dung
+                        if (player.highJumpTimer > 0) { player.highJumpTimer *= 2; player.highJumpMax = Math.max(player.highJumpMax, player.highJumpTimer); }
+                        if (player.invincibleTimer > 0) { player.invincibleTimer *= 2; player.invincibleMax = Math.max(player.invincibleMax, player.invincibleTimer); }
+                        if (player.gunTimer > 0) { player.gunTimer *= 2; player.gunMax = Math.max(player.gunMax, player.gunTimer); }
+                        if (player.speedTimer > 0) { player.speedTimer *= 2; player.speedMax = Math.max(player.speedMax, player.speedTimer); }
+                        showMessage("TIME x2!");
+                    }
                     
                     playItemSound(); // Phat tieng an item
                     createParticles(it.x + 10, it.y + 10, '#fff', 15);
@@ -574,8 +605,8 @@
                 }
             }
 
-            // --- SUNG TU DONG BAN ---
-            if (player.gunAmmo > 0 && player.frameCount % 20 === 0) {
+            // --- SUNG TU DONG BAN (Dung timer thay vi dan) ---
+            if (player.gunTimer > 0 && player.frameCount % 20 === 0) {
                 let target = null;
                 let minDist = 400; // Tam ban
                 for (let e of enemies) {
@@ -598,7 +629,7 @@
                     
                     playShootSound(); // Phat tieng ban sung
                     createParticles(player.x + player.width/2, player.y + 10, '#f44336', 3);
-                    player.gunAmmo--; // Chi tru dan khi ban
+                    // Da xoa dong tru dan (player.gunAmmo--)
                 }
             }
 
@@ -630,13 +661,13 @@
             }
 
             // Background clouds
-            clouds.forEach(c => {
-                 c.x -= c.speed;
-                 if (c.x + c.size * 2 < 0) {
-                     c.x = canvas.width + 50;
-                     c.y = Math.random() * 150 + 20;
-                 }
-             });
+            clouds.forEach(c => { 
+                c.x -= c.speed; 
+                if (c.x + c.size * 2 < 0) { 
+                    c.x = canvas.width + 50; 
+                    c.y = Math.random() * 150 + 20; 
+                } 
+            });
 
             let currentDist = (player.x - 100) / 20;
             if (currentDist > score) score = currentDist;
@@ -644,8 +675,8 @@
 
             let onVine = null;
             for (let v of vines) {
-                if (player.x + player.width > v.x - 15 && player.x < v.x + 15 &&
-                     player.y + player.height > v.y && player.y < v.y + v.height) {
+                if (player.x + player.width > v.x - 15 && player.x < v.x + 15 && 
+                    player.y + player.height > v.y && player.y < v.y + v.height) {
                     onVine = v; break;
                 }
             }
@@ -679,8 +710,8 @@
                 for (let z of ziplines) {
                     if (player.x >= z.x1 && player.x <= z.x2) {
                         let t = (player.x - z.x1) / (z.x2 - z.x1);
-                        player.y = z.y1 + t * (z.y2 - z.y1) + 20;
-                         fz = true; break;
+                        player.y = z.y1 + t * (z.y2 - z.y1) + 20; 
+                        fz = true; break;
                     }
                 }
                 if (!fz) { player.isZipping = false; player.velY = 2; }
@@ -752,10 +783,10 @@
                         if (wc < Math.PI) e.x += e.speed * e.dir * 1.5;
                     } else if (e.type === 'frog') {
                         if (player.x < e.x) e.dir = -1; else e.dir = 1; 
-
+                        
                         if (e.tongueState === 'idle') {
                             if (Math.random() < 0.003) {
-                                 e.tongueState = 'shooting';
+                                e.tongueState = 'shooting';
                             }
                         } else if (e.tongueState === 'shooting') {
                             e.tongueLen += 15;
@@ -797,10 +828,10 @@
                         // Giam quai binh thuong
                         playHitEnemySound(); // Am thanh dap quai
                         createParticles(e.x + e.width/2, e.y + e.height, '#333', 12);
-                        if (e.type === 'bug' && e.hp > 1) {
-                             e.hp--; player.velY = -player.jumpForce * 0.7; createParticles(e.x + 25, e.y, '#333', 5);
-                        } else {
-                             enemies.splice(i, 1); player.velY = -player.jumpForce * 0.7;
+                        if (e.type === 'bug' && e.hp > 1) { 
+                            e.hp--; player.velY = -player.jumpForce * 0.7; createParticles(e.x + 25, e.y, '#333', 5);
+                        } else { 
+                            enemies.splice(i, 1); player.velY = -player.jumpForce * 0.7;
                         }
                     } else { 
                         endGame(); 
@@ -879,9 +910,9 @@
                 ctx.beginPath(); ctx.moveTo(e.x + 25, e.y + 20);
                 let sa = (e.dir > 0) ? mo : Math.PI + mo;
                 let ea = (e.dir > 0) ? Math.PI * 2 - mo : Math.PI - mo;
-                ctx.arc(e.x + 25, e.y + 20, 20, sa, ea);
-                 ctx.closePath();
-                 ctx.fill(); ctx.stroke();
+                ctx.arc(e.x + 25, e.y + 20, 20, sa, ea); 
+                ctx.closePath(); 
+                ctx.fill(); ctx.stroke();
 
                 ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(e.x + 25 + 5 * e.dir, e.y + 5, 7, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
                 ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(e.x + 25 + 7 * e.dir, e.y + 5, 3, 0, Math.PI * 2); ctx.fill();
@@ -902,8 +933,8 @@
                 ctx.fillStyle = '#81d4fa'; 
                 ctx.beginPath(); ctx.ellipse(0, 0, 18, 12, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
                 ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(12, -3, 2, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#ffcc80';
-                 ctx.beginPath(); ctx.moveTo(18, -3); ctx.lineTo(28, 0); ctx.lineTo(18, 3); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = '#ffcc80'; 
+                ctx.beginPath(); ctx.moveTo(18, -3); ctx.lineTo(28, 0); ctx.lineTo(18, 3); ctx.fill(); ctx.stroke();
                 ctx.fillStyle = '#b3e5fc';
                 let wa = Math.sin(frameCount * 0.1) * 20;
                 ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-25, -wa); ctx.lineTo(-10, 10); ctx.fill(); ctx.stroke();
@@ -939,48 +970,66 @@
             ctx.restore();
         }
 
-        // --- VE ICON SUNG LASER SCI-FI DEP HON ---
+        // --- CAC HAM VE ICON VAT PHAM DE TAI SU DUNG TREN MAP VA PIE CHART ---
         function drawGunIcon(ctx) {
-            ctx.save();
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 1.5;
-            ctx.lineJoin = 'round';
-            
+            ctx.strokeStyle = '#333'; ctx.lineWidth = 1.5; ctx.lineJoin = 'round';
             // Tay cam
             ctx.fillStyle = '#5d4037';
-            ctx.beginPath();
-            ctx.moveTo(-6, 2);
-            ctx.lineTo(-10, 10);
-            ctx.lineTo(-4, 12);
-            ctx.lineTo(0, 2);
-            ctx.closePath();
-            ctx.fill(); ctx.stroke();
-
+            ctx.beginPath(); ctx.moveTo(-6, 2); ctx.lineTo(-10, 10); ctx.lineTo(-4, 12); ctx.lineTo(0, 2); ctx.closePath(); ctx.fill(); ctx.stroke();
             // Than sung
             ctx.fillStyle = '#29b6f6'; 
-            ctx.beginPath();
-            ctx.ellipse(2, -2, 10, 5, 0, 0, Math.PI*2);
-            ctx.fill(); ctx.stroke();
-
+            ctx.beginPath(); ctx.ellipse(2, -2, 10, 5, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
             // Nong sung
             ctx.fillStyle = '#ffca28'; 
-            ctx.beginPath();
-            ctx.rect(10, -5, 6, 6);
-            ctx.fill(); ctx.stroke();
-
+            ctx.beginPath(); ctx.rect(10, -5, 6, 6); ctx.fill(); ctx.stroke();
             // Dau nong sung
             ctx.fillStyle = '#f44336'; 
-            ctx.beginPath();
-            ctx.arc(17, -2, 3, 0, Math.PI*2);
-            ctx.fill(); ctx.stroke();
-
+            ctx.beginPath(); ctx.arc(17, -2, 3, 0, Math.PI*2); ctx.fill(); ctx.stroke();
             // Chi tiet
-            ctx.fillStyle = '#fff';
-            ctx.beginPath();
-            ctx.arc(2, -2, 2, 0, Math.PI*2);
-            ctx.fill();
+            ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(2, -2, 2, 0, Math.PI*2); ctx.fill();
+        }
 
+        function drawSpringIcon(ctx) {
+            ctx.strokeStyle = '#2196f3'; ctx.lineWidth = 3;
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(-6, 8); ctx.lineTo(6, 4); ctx.lineTo(-6, -1); ctx.lineTo(6, -5); ctx.lineTo(-6, -10);
+            ctx.stroke();
+        }
+
+        function drawStarIcon(ctx) {
+            ctx.fillStyle = '#ffeb3b'; ctx.strokeStyle = '#fbc02d'; ctx.lineWidth = 1;
+            ctx.beginPath();
+            for(let i=0; i<5; i++) {
+                ctx.lineTo(Math.cos((18+i*72)*Math.PI/180)*12, -Math.sin((18+i*72)*Math.PI/180)*12);
+                ctx.lineTo(Math.cos((54+i*72)*Math.PI/180)*5, -Math.sin((54+i*72)*Math.PI/180)*5);
+            }
+            ctx.closePath(); ctx.fill(); ctx.stroke();
+        }
+
+        function drawSpeedIcon(ctx) {
+            ctx.fillStyle = '#00e5ff'; ctx.strokeStyle = '#00b8d4'; ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(2, -10); ctx.lineTo(-6, 2); ctx.lineTo(-1, 2); ctx.lineTo(-4, 10); ctx.lineTo(6, -2); ctx.lineTo(1, -2); ctx.closePath();
+            ctx.fill(); ctx.stroke();
+        }
+
+        function drawTimeX2Icon(ctx) {
+            // Ve dong ho cat lech ve trai mot chut
+            ctx.save();
+            ctx.translate(-5, 0);
+            ctx.fillStyle = '#bcaaa4'; ctx.strokeStyle = '#5d4037'; ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(-5, -6); ctx.lineTo(5, -6); ctx.lineTo(1, 0); ctx.lineTo(5, 6); ctx.lineTo(-5, 6); ctx.lineTo(-1, 0); ctx.closePath();
+            ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#ffcc80';
+            ctx.beginPath(); ctx.moveTo(-3, -4); ctx.lineTo(3, -4); ctx.lineTo(0, -1); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(-2, 4); ctx.lineTo(2, 4); ctx.lineTo(0, 1); ctx.fill();
             ctx.restore();
+            // Ve chu x2 ben phai
+            ctx.fillStyle = '#d32f2f'; ctx.font = 'bold 14px "Patrick Hand", cursive';
+            ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+            ctx.fillText('x2', 2, 0);
         }
 
         // --- VE VAT PHAM TREN BAN DO ---
@@ -994,23 +1043,12 @@
             ctx.lineWidth = 4;
             ctx.beginPath(); ctx.arc(0, 0, 16 + Math.sin(player.frameCount*0.2)*2, 0, Math.PI*2); ctx.stroke();
 
-            if (item.type === 'spring') {
-                ctx.strokeStyle = '#2196f3'; ctx.lineWidth = 3;
-                ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-                ctx.beginPath();
-                ctx.moveTo(-6, 8); ctx.lineTo(6, 4); ctx.lineTo(-6, -1); ctx.lineTo(6, -5); ctx.lineTo(-6, -10);
-                ctx.stroke();
-            } else if (item.type === 'star') {
-                ctx.fillStyle = '#ffeb3b'; ctx.strokeStyle = '#fbc02d'; ctx.lineWidth = 1;
-                ctx.beginPath();
-                for(let i=0; i<5; i++) {
-                    ctx.lineTo(Math.cos((18+i*72)*Math.PI/180)*12, -Math.sin((18+i*72)*Math.PI/180)*12);
-                    ctx.lineTo(Math.cos((54+i*72)*Math.PI/180)*5, -Math.sin((54+i*72)*Math.PI/180)*5);
-                }
-                ctx.closePath(); ctx.fill(); ctx.stroke();
-            } else if (item.type === 'gun') {
-                drawGunIcon(ctx);
-            }
+            if (item.type === 'spring') drawSpringIcon(ctx);
+            else if (item.type === 'star') drawStarIcon(ctx);
+            else if (item.type === 'gun') { ctx.save(); drawGunIcon(ctx); ctx.restore(); }
+            else if (item.type === 'speed') drawSpeedIcon(ctx);
+            else if (item.type === 'time_x2') drawTimeX2Icon(ctx);
+
             ctx.restore();
         }
 
@@ -1040,8 +1078,8 @@
 
             // Body
             if (p.isZipping || p.isClimbing) {
-                const hc = Math.sin(p.frameCount * 0.15);
-                 for(let side of [-1, 1]) {
+                const hc = Math.sin(p.frameCount * 0.15); 
+                for(let side of [-1, 1]) {
                     let hY = -25 + (side===1 ? (hc < 0 ? -hc * 15 : 0) : (hc > 0 ? hc * 15 : 0));
                     ctx.beginPath(); ctx.moveTo(side*5, 5); ctx.lineTo(side*12, hY); ctx.stroke();
                     ctx.fillStyle = '#ffe0b2'; ctx.beginPath(); ctx.arc(side*12, hY, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
@@ -1050,15 +1088,15 @@
                 let aa = (p.velX !== 0 && p.grounded) ? Math.sin(p.frameCount * 0.2) * 0.6 : 0;
                 ctx.save(); ctx.translate(0, 5);
                 // Chan trai
-                ctx.save(); ctx.rotate(-aa);
-                 ctx.fillStyle = '#90caf9'; ctx.beginPath(); ctx.rect(-14, 0, 6, 18); ctx.fill(); ctx.stroke();
+                ctx.save(); ctx.rotate(-aa); 
+                ctx.fillStyle = '#90caf9'; ctx.beginPath(); ctx.rect(-14, 0, 6, 18); ctx.fill(); ctx.stroke();
                 // Hieu ung giay lo xo khi co high jump
                 if (p.highJumpTimer > 0) { ctx.strokeStyle = '#2196f3'; ctx.beginPath(); ctx.moveTo(-11, 18); ctx.lineTo(-14, 22); ctx.lineTo(-8, 26); ctx.stroke(); }
                 ctx.restore();
                 
                 // Chan phai
-                ctx.save(); ctx.rotate(aa);
-                 ctx.fillStyle = '#64b5f6'; ctx.beginPath(); ctx.rect(8, 0, 6, 18); ctx.fill(); ctx.stroke();
+                ctx.save(); ctx.rotate(aa); 
+                ctx.fillStyle = '#64b5f6'; ctx.beginPath(); ctx.rect(8, 0, 6, 18); ctx.fill(); ctx.stroke();
                 if (p.highJumpTimer > 0) { ctx.strokeStyle = '#2196f3'; ctx.beginPath(); ctx.moveTo(11, 18); ctx.lineTo(8, 22); ctx.lineTo(14, 26); ctx.stroke(); }
                 ctx.restore();
                 ctx.restore();
@@ -1069,18 +1107,18 @@
             ctx.beginPath(); ctx.rect(-10, br, 20, bodyH); ctx.fill(); ctx.stroke();
 
             // Dau
-            ctx.translate(0, br);
-             ctx.fillStyle = '#ffe0b2';
+            ctx.translate(0, br); 
+            ctx.fillStyle = '#ffe0b2';
             ctx.beginPath(); ctx.arc(0, -2, 12, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
 
             // Mat
-            ctx.fillStyle = '#333';
-             ctx.beginPath(); ctx.arc(-4, -4, 2, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#333'; 
+            ctx.beginPath(); ctx.arc(-4, -4, 2, 0, Math.PI * 2); ctx.fill();
             ctx.beginPath(); ctx.arc(-8, -4, 2, 0, Math.PI * 2); ctx.fill();
 
             // Mu
-            ctx.fillStyle = '#ef5350';
-             ctx.beginPath(); ctx.arc(0, -7, 15, Math.PI, 0); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#ef5350'; 
+            ctx.beginPath(); ctx.arc(0, -7, 15, Math.PI, 0); ctx.fill(); ctx.stroke();
             ctx.beginPath(); ctx.rect(-15, -10, 30, 4); ctx.fill(); ctx.stroke();
 
             ctx.restore();
@@ -1102,8 +1140,8 @@
                 ctx.moveTo(x, y + j); ctx.lineTo(x + w, y + j);
                 let offset = (j / bH) % 2 === 0 ? 0 : bW / 2;
                 for(let i = offset; i < w; i += bW) {
-                    if (x+i < x+w) {
-                         ctx.moveTo(x + i, y + j); ctx.lineTo(x + i, y + j + bH);
+                    if (x+i < x+w) { 
+                        ctx.moveTo(x + i, y + j); ctx.lineTo(x + i, y + j + bH);
                     }
                 }
             }
@@ -1116,8 +1154,8 @@
             setDoodleStyle(ctx);
 
             // SUN
-            ctx.fillStyle = '#fff176';
-             ctx.beginPath(); ctx.arc(700, 60, 25, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#fff176'; 
+            ctx.beginPath(); ctx.arc(700, 60, 25, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
             // Tia nang
             ctx.beginPath();
             for(let i=0; i<8; i++) {
@@ -1130,9 +1168,9 @@
             // CLOUDS
             ctx.save();
             ctx.globalAlpha = 0.6;
-            clouds.forEach(c => {
-                 ctx.fillStyle = '#fff';
-                 ctx.beginPath(); ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2); ctx.fill();
+            clouds.forEach(c => { 
+                ctx.fillStyle = '#fff'; 
+                ctx.beginPath(); ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2); ctx.fill();
             });
             ctx.restore();
 
@@ -1140,17 +1178,17 @@
             
             // VINES
             vines.forEach(v => {
-                ctx.save();
-                 ctx.strokeStyle = '#333'; ctx.lineWidth = 2; 
+                ctx.save(); 
+                ctx.strokeStyle = '#333'; ctx.lineWidth = 2; 
                 ctx.beginPath();
                 ctx.moveTo(v.x, v.y);
-                for(let i=0; i<=v.height; i+=20) {
-                     ctx.lineTo(v.x + Math.sin(i*0.1)*5, v.y + i);
+                for(let i=0; i<=v.height; i+=20) { 
+                    ctx.lineTo(v.x + Math.sin(i*0.1)*5, v.y + i);
                 }
                 ctx.stroke();
-                ctx.fillStyle = '#a5d6a7';
-                 for(let i=0; i<v.height; i+=30) {
-                     ctx.beginPath(); ctx.arc(v.x + 5, v.y + i, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = '#a5d6a7'; 
+                for(let i=0; i<v.height; i+=30) { 
+                    ctx.beginPath(); ctx.arc(v.x + 5, v.y + i, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
                     ctx.beginPath(); ctx.arc(v.x - 5, v.y + i + 15, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
                 }
                 ctx.restore();
@@ -1158,12 +1196,12 @@
             
             // ZIPLINES
             ziplines.forEach(z => {
-                ctx.save();
-                 ctx.strokeStyle = '#333'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]);
-                 ctx.beginPath(); ctx.moveTo(z.x1, z.y1); ctx.lineTo(z.x2, z.y2); ctx.stroke();
-                ctx.setLineDash([]);
-                 ctx.fillStyle = '#fff';
-                 ctx.fillRect(z.x1-5, z.y1-10, 10, 20); ctx.strokeRect(z.x1-5, z.y1-10, 10, 20);
+                ctx.save(); 
+                ctx.strokeStyle = '#333'; ctx.lineWidth = 2; ctx.setLineDash([5, 5]); 
+                ctx.beginPath(); ctx.moveTo(z.x1, z.y1); ctx.lineTo(z.x2, z.y2); ctx.stroke();
+                ctx.setLineDash([]); 
+                ctx.fillStyle = '#fff'; 
+                ctx.fillRect(z.x1-5, z.y1-10, 10, 20); ctx.strokeRect(z.x1-5, z.y1-10, 10, 20);
                 ctx.fillRect(z.x2-5, z.y2-10, 10, 20); ctx.strokeRect(z.x2-5, z.y2-10, 10, 20);
                 ctx.restore();
             });
@@ -1173,10 +1211,10 @@
                     ctx.save();
                     ctx.strokeStyle = '#333'; ctx.lineWidth = 2;
                     ctx.beginPath(); ctx.moveTo(p.x, p.y + 10); ctx.lineTo(p.x + p.width, p.y + 10); ctx.stroke();
-                    ctx.fillStyle = '#fff';
-                     for(let x = p.x; x < p.x + p.width; x += 15) { ctx.beginPath(); ctx.arc(x, p.y + 10, 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
-                    ctx.fillStyle = '#ff8a80';
-                     for (let i = -1; i < p.width / 100 + 1; i++) {
+                    ctx.fillStyle = '#fff'; 
+                    for(let x = p.x; x < p.x + p.width; x += 15) { ctx.beginPath(); ctx.arc(x, p.y + 10, 4, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
+                    ctx.fillStyle = '#ff8a80'; 
+                    for (let i = -1; i < p.width / 100 + 1; i++) {
                         let bx = p.x + (i * 200) + p.bladeOffset; if (bx > p.x && bx < p.x + p.width) {
                             ctx.save(); ctx.translate(bx, p.y + 5); ctx.rotate(Date.now() / 100); ctx.beginPath();
                             for (let a = 0; a < 4; a++) { let ang = (a/4)*Math.PI*2; ctx.lineTo(Math.cos(ang)*15, Math.sin(ang)*15); ctx.lineTo(Math.cos(ang+0.5)*5, Math.sin(ang+0.5)*5); }
@@ -1197,8 +1235,8 @@
                     ctx.fillStyle = '#8d6e63';
                     ctx.beginPath(); ctx.ellipse(kX, kY - 35, 55 + breathe, 45 + breathe/2, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
                     // Chest
-                    ctx.fillStyle = '#d7ccc8';
-                     ctx.beginPath(); ctx.ellipse(kX, kY - 30, 35 + breathe * 0.8, 28 + breathe * 0.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                    ctx.fillStyle = '#d7ccc8'; 
+                    ctx.beginPath(); ctx.ellipse(kX, kY - 30, 35 + breathe * 0.8, 28 + breathe * 0.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
                     // Arms
                     ctx.fillStyle = '#8d6e63';
                     ctx.beginPath(); ctx.ellipse(kX - 58 - breathe/2, kY - 25, 20, 35, 0.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
@@ -1223,8 +1261,8 @@
                     ctx.beginPath(); ctx.arc(kX - 4, kY - 72, 1, 0, Math.PI*2); ctx.fill();
                     ctx.beginPath(); ctx.arc(kX + 4, kY - 72, 1, 0, Math.PI*2); ctx.fill();
                     ctx.restore();
-                } else {
-                     // Ground
+                } else { 
+                    // Ground
                     ctx.save();
                     ctx.fillStyle = '#fff';
                     ctx.beginPath(); ctx.rect(p.x, p.y, p.width, p.height); ctx.fill();
@@ -1234,7 +1272,7 @@
                 }
             });
 
-            // Ve vat pham
+            // Ve vat pham tren ban do
             for (let item of items) drawItem(ctx, item);
 
             for (let e of enemies) drawEnemy(ctx, e, player.frameCount);
@@ -1245,70 +1283,80 @@
                 ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, Math.PI*2); ctx.fill(); ctx.stroke();
             }
 
-            particles.forEach(p => {
-                 ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
-                 ctx.beginPath(); ctx.rect(p.x, p.y, 4, 4); ctx.fill();
-             });
-             
+            particles.forEach(p => { 
+                ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color; 
+                ctx.beginPath(); ctx.rect(p.x, p.y, 4, 4); ctx.fill(); 
+            }); 
+            
             ctx.globalAlpha = 1; 
             drawPlayer(ctx, player);
 
-            // --- HIEN THI ICON VAT PHAM TREN DAU NHAN VAT KHI DANG SU DUNG ---
-            let headIconY = player.y - 25;
-            const maxItemTimer = 1200;
-            const maxItemAmmo = 30;
-
-            if (player.highJumpTimer > 0) {
-                ctx.save();
-                ctx.globalAlpha = player.highJumpTimer / maxItemTimer;
-                ctx.translate(player.x + player.width/2, headIconY);
-                ctx.scale(0.8, 0.8);
-                ctx.strokeStyle = '#2196f3'; ctx.lineWidth = 3;
-                ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-                ctx.beginPath();
-                ctx.moveTo(-6, 8); ctx.lineTo(6, 4); ctx.lineTo(-6, -1); ctx.lineTo(6, -5); ctx.lineTo(-6, -10);
-                ctx.stroke();
-                ctx.restore();
-                headIconY -= 25; // Xep chong icon len nhau neu dung nhieu cai cung luc
-            }
-
-            if (player.invincibleTimer > 0) {
-                ctx.save();
-                ctx.globalAlpha = player.invincibleTimer / maxItemTimer;
-                ctx.translate(player.x + player.width/2, headIconY);
-                ctx.scale(0.8, 0.8);
-                ctx.fillStyle = '#ffeb3b'; ctx.strokeStyle = '#fbc02d'; ctx.lineWidth = 1;
-                ctx.beginPath();
-                for(let i=0; i<5; i++) {
-                    ctx.lineTo(Math.cos((18+i*72)*Math.PI/180)*12, -Math.sin((18+i*72)*Math.PI/180)*12);
-                    ctx.lineTo(Math.cos((54+i*72)*Math.PI/180)*5, -Math.sin((54+i*72)*Math.PI/180)*5);
-                }
-                ctx.closePath(); ctx.fill(); ctx.stroke();
-                ctx.restore();
-                headIconY -= 25;
-            }
-
-            if (player.gunAmmo > 0) {
-                ctx.save();
-                ctx.globalAlpha = Math.min(1, player.gunAmmo / maxItemAmmo);
-                ctx.translate(player.x + player.width/2, headIconY);
-                ctx.scale(0.8, 0.8);
-                drawGunIcon(ctx);
-                ctx.restore();
-                headIconY -= 25;
-            }
-
             ctx.restore(); // ket thuc translate camera
+
+            // --- HIEN THI TIMERS (VONG TRON HINH QUAT) Ở GIUA DUOI MAN HINH ---
+            let activeItems = [];
+            if (player.highJumpTimer > 0) activeItems.push({type: 'spring', timer: player.highJumpTimer, max: player.highJumpMax});
+            if (player.invincibleTimer > 0) activeItems.push({type: 'star', timer: player.invincibleTimer, max: player.invincibleMax});
+            if (player.gunTimer > 0) activeItems.push({type: 'gun', timer: player.gunTimer, max: player.gunMax});
+            if (player.speedTimer > 0) activeItems.push({type: 'speed', timer: player.speedTimer, max: player.speedMax});
+
+            if (activeItems.length > 0) {
+                let iconRadius = 22;
+                let padding = 15;
+                let totalWidth = activeItems.length * (iconRadius * 2) + (activeItems.length - 1) * padding;
+                let startX = (canvas.width - totalWidth) / 2;
+                let y = canvas.height - 35; // Cach day man hinh
+
+                for (let i = 0; i < activeItems.length; i++) {
+                    let item = activeItems[i];
+                    let x = startX + i * (iconRadius * 2 + padding) + iconRadius;
+
+                    ctx.save();
+                    // Ve nen vong tron trang
+                    ctx.beginPath();
+                    ctx.arc(x, y, iconRadius, 0, Math.PI*2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.fill();
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#333';
+                    ctx.stroke();
+
+                    // Ve Icon vat pham
+                    ctx.save();
+                    ctx.translate(x, y);
+                    if (item.type === 'spring') drawSpringIcon(ctx);
+                    else if (item.type === 'star') drawStarIcon(ctx);
+                    else if (item.type === 'gun') { ctx.scale(0.8, 0.8); drawGunIcon(ctx); }
+                    else if (item.type === 'speed') drawSpeedIcon(ctx);
+                    ctx.restore();
+
+                    // Ve lop den mo (pie chart) the hien thoi gian da troi qua
+                    let percentLeft = item.timer / item.max;
+                    let percentPassed = 1 - percentLeft;
+                    
+                    if (percentPassed > 0) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        let startAngle = -Math.PI/2; // Bat dau tu dinh (12 gio)
+                        let endAngle = startAngle + (Math.PI * 2 * percentPassed);
+                        ctx.arc(x, y, iconRadius, startAngle, endAngle);
+                        ctx.closePath();
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+                        ctx.fill();
+                    }
+                    ctx.restore();
+                }
+            }
         }
 
         function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
         window.onload = function() { initGame(); gameLoop(); };
 
-        function showMessage(msg) {
-             messageBox.innerText = msg;
-             messageBox.style.display = 'block';
-             setTimeout(() => messageBox.style.display = 'none', 1500);
-         }
+        function showMessage(msg) { 
+            messageBox.innerText = msg; 
+            messageBox.style.display = 'block'; 
+            setTimeout(() => messageBox.style.display = 'none', 1500); 
+        }
     </script>
 </body>
 </html>
