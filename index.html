@@ -336,6 +336,22 @@
             osc.stop(audioCtx.currentTime + 0.1);
         }
 
+        // Am thanh dap/tieu diet quai
+        function playHitEnemySound() {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
+
         // Am thanh thua game
         function playGameOverSound() {
             if (!audioCtx) return;
@@ -602,6 +618,7 @@
                         } else {
                             enemies.splice(j, 1);
                         }
+                        playHitEnemySound(); // Am thanh trung quai
                         createParticles(e.x + e.width/2, e.y + e.height/2, '#f44336', 10);
                         hit = true;
                         break;
@@ -772,11 +789,13 @@
                     if (player.invincibleTimer > 0) {
                         // TANG HINH: Pha huy ke dich ngay lap tuc
                         if (e.type !== 'spikes' && e.type !== 'arch') {
+                            playHitEnemySound(); // Am thanh dap quai khi tang hinh
                             enemies.splice(i, 1);
                             createParticles(e.x + e.width/2, e.y + e.height/2, '#fff', 15);
                         }
                     } else if (player.velY > 0 && playerFeet <= enemyMiddle + 15 && e.type !== 'spikes' && e.type !== 'bird') {
                         // Giam quai binh thuong
+                        playHitEnemySound(); // Am thanh dap quai
                         createParticles(e.x + e.width/2, e.y + e.height, '#333', 12);
                         if (e.type === 'bug' && e.hp > 1) {
                              e.hp--; player.velY = -player.jumpForce * 0.7; createParticles(e.x + 25, e.y, '#333', 5);
